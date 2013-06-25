@@ -1,0 +1,92 @@
+{% extends "admin/change_form.html" %}
+
+{% block field_sets %}
+{% block content %}
+<div id="content-main">
+  <ul class="object-tools">
+    <li><a href="history/" class="historylink">History</a></li>
+  </ul>
+	<div>
+		<!-- Object information -->
+		<fieldset class="module aligned ">
+			<h2>Object info</h2>
+			<div class="form-row">
+				<div>
+					<label>Content type:</label>
+					<p>{{ original.content_type }}</p>
+				</div>
+			</div>
+			<div class="form-row">
+				<div>
+					<label>Operation:</label>
+					<p>{{ original.operation_name }}</p>
+				</div>
+			</div>
+			<div class="form-row">
+				<div>
+					<label>Description:</label>
+					<p><div>{{ original.description|linebreaksbr }}</p>
+				</div>
+			</div>
+		</fieldset>
+		
+		<!-- Info about request -->
+		<fieldset class="module aligned ">
+			<h2>Request info</h2>
+			<div class="form-row">
+				<div>
+					<label>Date:</label>
+					<p>{{ original.audit_request.date }}</p>
+				</div>
+			</div>
+			<div class="form-row">
+				<div>
+					<label>Request ID:</label>
+					<p>{{ original.audit_request.request_id }}</p>
+				</div>
+			</div>
+			<div class="form-row">
+				<div>
+					<label>Username:</label>
+					<p>{{ original.audit_request.user }}</p>
+				</div>
+			</div>
+			<div class="form-row">
+				<div>
+					<label>IP:</label>
+					<p>{{ original.audit_request.ip }}</p>
+				</div>
+			</div>
+			<div class="form-row">
+				<div>
+					<label>path:</label>
+					<p>{{ original.audit_request.path }}</p>
+				</div>
+			</div>
+		</fieldset>
+		
+		<!-- Fields -->
+		<fieldset class="module aligned ">
+			<h2>Fields were changed</h2>
+			<div class="form-row">
+				<table width="400">
+					<tr>
+						<td align="left">Field</td>
+						<td align="left">Old value</td>
+						<td align="left">New value</td>
+					</tr>
+					{% for fc in original.field_changes.all %}
+						<tr>
+							<td align="left">{{ fc.field }}</td>
+							<td align="left">{{ fc.old_value|default_if_none:'' }}</td>
+							<td align="left">{{ fc.new_value|default_if_none:'' }}</td>
+						</tr>
+					{% endfor %}
+				</table>
+			</div>
+		</fieldset>
+	</div>
+</div>
+{% endblock %}
+{% endblock %}
+{% block submit_buttons_bottom %}{% endblock %}
