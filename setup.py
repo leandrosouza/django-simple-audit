@@ -1,17 +1,17 @@
 import os
 from setuptools import setup, find_packages
 
-STATUS_PROD = ['Development Status :: 5 - Production/Stable']
-STATUS_BETA = ['Development Status :: 4 - Beta']
-STATUS_ALPHA = ['Development Status :: 3 - Alpha']
+STATUS_PROD = 'Development Status :: 5 - Production/Stable'
+STATUS_BETA = 'Development Status :: 4 - Beta'
+STATUS_ALPHA = 'Development Status :: 3 - Alpha'
 
-version = '0.1'
+version = '0.0.1'
 README = os.path.join(os.path.dirname(__file__), 'README.rst')
 long_description = open(README).read()
 setup(
     name='django-simple-audit',
     version=version,
-    description=("Simple audit for model instances in Django."),
+    description="Simple audit for model instances in Django.",
     long_description=long_description,
     classifiers=[
         STATUS_PROD,
