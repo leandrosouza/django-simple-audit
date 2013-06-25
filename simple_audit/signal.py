@@ -87,8 +87,6 @@ def save_audit(instance, operation):
             old_state = to_dict(instance.__class__.objects.get(pk=instance.pk))
     except:
         pass
-        
-    print "new_state=", repr(new_state), 'old_state=', repr(old_state)
 
     changed_fields = dict_diff(old_state, new_state)
     if operation == Audit.CHANGE:
