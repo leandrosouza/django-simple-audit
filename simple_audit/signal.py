@@ -113,4 +113,4 @@ def save_audit(instance, operation):
             change.old_value = old_value
             change.save()
     except:
-        LOG.error(u'Error registering auditing for %s: %s', operation, instance)
+        LOG.error(u'Error registering auditing to %s: (%s) %s', repr(instance), type(instance), getattr(instance, '__dict__', None))
