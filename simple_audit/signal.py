@@ -75,11 +75,7 @@ def format_value(v):
 
 
 def save_audit(instance, operation):
-    
-    if instance is None or instance.pk is None:
-        LOG.error(u'Invalid instance to auditing %s: (%s) %s', repr(instance), type(instance), getattr(instance, '__dict__', None))
-        return
-    
+
     try:
         request_id = threadlocals.get_current_request_id()
 
