@@ -40,7 +40,7 @@ to audit a model you need import `simple_audit` and then register the model to b
 .. code-block:: bash
 
 	from django.db import models
-	import simple_audit
+	'import simple_audit'
 
 
 	class Message(models.Model):
@@ -72,7 +72,7 @@ to audit a model you need import `simple_audit` and then register the model to b
 	        return self.name
 
 
-	simple_audit.register(Message, Owner, VirtualMachine)
+	'simple_audit.register(Message, Owner, VirtualMachine)'
 
 
 Dependencies
