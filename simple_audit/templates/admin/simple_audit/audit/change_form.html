@@ -78,8 +78,13 @@
 					{% for fc in original.field_changes.all %}
 						<tr>
 							<td align="left">{{ fc.field }}</td>
-							<td align="left">{{ fc.old_value|default_if_none:'' }}</td>
-							<td align="left">{{ fc.new_value|default_if_none:'' }}</td>
+							{% if original.operation_name == "delete" %}
+								<td align="left">{{ fc.new_value|default_if_none:'' }}</td>
+								<td align="left"></td>
+							{% else %}
+								<td align="left">{{ fc.old_value|default_if_none:'' }}</td>
+								<td align="left">{{ fc.new_value|default_if_none:'' }}</td>
+							{% endif %}
 						</tr>
 					{% endfor %}
 				</table>
