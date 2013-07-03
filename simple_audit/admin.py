@@ -1,14 +1,45 @@
 # -*- coding:utf-8 -*_
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
+from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.core.urlresolvers import reverse
 from .models import Audit
+from .signal import CONTENTTYPE_LIST
+
+
+class ContentTypeListFilter(SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = _('content type')
+    parameter_name = 'content_type__id__exact'
+
+    def lookups(self, request, model_admin):
+            """
+            Returns a list of tuples. The first element in each
+            tuple is the coded value for the option that will
+            appear in the URL query. The second element is the
+            human-readable name for the option that will appear
+            in the right sidebar.
+            """
+            return [(ct.pk, ct.name) for ct in CONTENTTYPE_LIST]
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        if self.value():
+            return queryset.filter(content_type_id=self.value())
+        else:
+            return queryset
 
 
 class AuditAdmin(admin.ModelAdmin):
     search_fields = ("audit_request__user__username", "description", "audit_request__request_id", )
     list_display = ("audit_date", "audit_content", "operation", "audit_user", "audit_description", )
-    list_filter = ("operation", "content_type",)
+    list_filter = ("operation", ContentTypeListFilter,)
 
     def audit_description(self, audit):
         desc = "<br/>".join(escape(audit.description or "").split('\n'))
@@ -50,5 +81,8 @@ class AuditAdmin(admin.ModelAdmin):
         if user_filter:
             qs = qs.filter(audit_request__user__in=user_filter)
         return qs
+
+    def has_add_permission(self, request):
+            return False
 
 admin.site.register(Audit, AuditAdmin)
