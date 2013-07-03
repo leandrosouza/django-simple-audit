@@ -1,10 +1,13 @@
 # -*- coding:utf-8 -*-
 import logging
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
 from .models import Audit, AuditChange, AuditRequest
 from .middleware import threadlocals
 
+CONTENTTYPE_LIST = set()
 LOG = logging.getLogger(__name__)
+
 
 def audit_post_save(sender, **kwargs):
     if kwargs['created']:
@@ -21,7 +24,9 @@ def audit_post_delete(sender, **kwargs):
 
 
 def register(*my_models):
+    global CONTENTTYPE_LIST
     for model in my_models:
+        CONTENTTYPE_LIST.add(ContentType.objects.get_for_model(model))
         models.signals.pre_save.connect(audit_pre_save, sender=model)
         models.signals.post_save.connect(audit_post_save, sender=model)
         models.signals.post_delete.connect(audit_post_delete, sender=model)
