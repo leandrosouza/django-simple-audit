@@ -48,6 +48,25 @@ def get_or_create_audit_request(request_id):
         audit_request.save()
     return audit_request
 
+def get_value(obj, attr):
+    """
+    Returns the value of an attribute. First it tries to return the unicode value.
+    """
+    try:
+        return getattr(obj, attr).__unicode__()
+    except:
+        value = getattr(obj, attr)
+        if value.__class__.__name__ == 'RelatedManager':
+            values = []
+            #get unicode values for list itens
+            for v in value.all():
+                try:
+                    values.append(v.__unicode__())
+                except:
+                    values.append()
+            return values
+        else:
+            return value
 
 def to_dict(obj):
     if obj is None:
@@ -56,23 +75,23 @@ def to_dict(obj):
     if isinstance(obj, dict):
         return dict.copy()
 
-    state = {}
-    for key, value in obj.__dict__.items():
-        if not key.startswith('_'):
-            state[key] = value
-    return state
+    state = {}            
 
+    for key in obj._meta.get_all_field_names():
+        state[key] = get_value(obj, key)
+
+    return state
 
 def dict_diff(old, new):
 
     keys = set(old.keys() + new.keys())
-    print keys
     diff = {}
     for key in keys:
         old_value = old.get(key, None)
         new_value = new.get(key, None)
         if old_value != new_value:
             diff[key] = (old_value, new_value)
+            
     return diff
 
 
@@ -83,6 +102,7 @@ def format_value(v):
 def save_audit(instance, operation):
 
     try:
+        save_audit = True
         request_id = threadlocals.get_current_request_id()
 
         audit = Audit()
@@ -98,21 +118,26 @@ def save_audit(instance, operation):
             pass
 
         changed_fields = dict_diff(old_state, new_state)
+            
         if operation == Audit.CHANGE:
+            #is there any change?
+            if not changed_fields:
+                save_audit = False
             audit.description = u'%s.' % (u"\n".join([u"%s: from %s to %s"
                 % (k, format_value(v[0]), format_value(v[1])) for k, v in changed_fields.items()]))
 
         if request_id:
             audit.audit_request = get_or_create_audit_request(request_id)
 
-        audit.save()
-
-        for field, (old_value, new_value) in changed_fields.items():
-            change = AuditChange()
-            change.audit = audit
-            change.field = field
-            change.new_value = new_value
-            change.old_value = old_value
-            change.save()
+        if save_audit:
+            audit.save()
+        
+            for field, (old_value, new_value) in changed_fields.items():
+                change = AuditChange()
+                change.audit = audit
+                change.field = field
+                change.new_value = new_value
+                change.old_value = old_value
+                change.save()
     except:
         LOG.error(u'Error registering auditing to %s: (%s) %s', repr(instance), type(instance), getattr(instance, '__dict__', None))
