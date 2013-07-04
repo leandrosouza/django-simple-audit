@@ -1,11 +1,12 @@
 # -*- coding:utf-8 -*_
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.core.urlresolvers import reverse
 from .models import Audit
-from .signal import CONTENTTYPE_LIST
+from .signal import MODEL_LIST
 
 
 class ContentTypeListFilter(SimpleListFilter):
@@ -22,7 +23,7 @@ class ContentTypeListFilter(SimpleListFilter):
             human-readable name for the option that will appear
             in the right sidebar.
             """
-            return [(ct.pk, ct.name) for ct in CONTENTTYPE_LIST]
+            return [(ct.pk, ct.name) for ct in ContentType.objects.get_for_models(*MODEL_LIST).values()]
 
     def queryset(self, request, queryset):
         """
