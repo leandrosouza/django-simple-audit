@@ -57,14 +57,7 @@ def get_value(obj, attr):
     except:
         value = getattr(obj, attr)
         if value.__class__.__name__ == 'RelatedManager':
-            values = []
-            #get unicode values for list itens
-            for v in value.all():
-                try:
-                    values.append(v.__unicode__())
-                except:
-                    values.append()
-            return values
+            return [v.__unicode__() for v in value.all()]
         else:
             return value
 
