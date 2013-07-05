@@ -96,9 +96,15 @@ def format_value(v):
 
 
 def save_audit(instance, operation):
+    """
+    save the audit. 
+    However, the variable persist_audit controls if the audit should be really
+    saved to the database or not. This variable is only affected in a change operation. If no
+    change is detected than it is setted to False.
+    """
 
     try:
-        save_audit = True
+        persist_audit = True
         request_id = threadlocals.get_current_request_id()
 
         audit = Audit()
@@ -118,14 +124,14 @@ def save_audit(instance, operation):
         if operation == Audit.CHANGE:
             #is there any change?
             if not changed_fields:
-                save_audit = False
+                persist_audit = False
             audit.description = u'%s.' % (u"\n".join([u"%s: from %s to %s"
                 % (k, format_value(v[0]), format_value(v[1])) for k, v in changed_fields.items()]))
 
         if request_id:
             audit.audit_request = get_or_create_audit_request(request_id)
 
-        if save_audit:
+        if persist_audit:
             audit.save()
         
             for field, (old_value, new_value) in changed_fields.items():
