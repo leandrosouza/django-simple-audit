@@ -52,14 +52,17 @@ def get_value(obj, attr):
     """
     Returns the value of an attribute. First it tries to return the unicode value.
     """
-    try:
-        return getattr(obj, attr).__unicode__()
-    except:
-        value = getattr(obj, attr)
-        if value.__class__.__name__ == 'RelatedManager':
-            return [v.__unicode__() for v in value.all()]
-        else:
-            return value
+    if hasattr(obj, attr):
+        try:
+            return getattr(obj, attr).__unicode__()
+        except:
+            value = getattr(obj, attr)
+            if value.__class__.__name__ == 'RelatedManager':
+                return [v.__unicode__() for v in value.all()]
+            else:
+                return value
+    else:
+        return None
 
 def to_dict(obj):
     if obj is None:
