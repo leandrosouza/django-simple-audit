@@ -6,6 +6,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.utils.translation import ugettext_lazy as _
+
 
 LOG = logging.getLogger(__name__)
 
@@ -15,11 +17,11 @@ class Audit(models.Model):
     CHANGE = 1
     DELETE = 2
     OPERATION_CHOICES = (
-        (ADD, 'add'),
-        (CHANGE, 'change'),
-        (DELETE, 'delete')
+        (ADD, _('add')),
+        (CHANGE, _('change')),
+        (DELETE, _('delete'))
     )
-    operation = models.PositiveIntegerField(max_length=255, choices=OPERATION_CHOICES)
+    operation = models.PositiveIntegerField(max_length=255, choices=OPERATION_CHOICES, verbose_name=_('Operation'))
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')

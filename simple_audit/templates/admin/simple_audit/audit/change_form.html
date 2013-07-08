@@ -1,4 +1,5 @@
 {% extends "admin/change_form.html" %}
+{% load i18n %}
 
 {% block field_sets %}
 {% block content %}
@@ -6,22 +7,22 @@
 	<div>
 		<!-- Object information -->
 		<fieldset class="module aligned ">
-			<h2>Object info</h2>
+			<h2>{% trans "Object info" %}</h2>
 			<div class="form-row">
 				<div>
-					<label>Content type:</label>
+					<label>{% trans "Content type" %}:</label>
 					<p>{{ original.content_type }}</p>
 				</div>
 			</div>
 			<div class="form-row">
 				<div>
-					<label>Operation:</label>
+					<label>{% trans "Operation" %}:</label>
 					<p>{{ original.operation_name }}</p>
 				</div>
 			</div>
 			<div class="form-row">
 				<div>
-					<label>Description:</label>
+					<label>{% trans "Description" %}:</label>
 					<p><div>{{ original.description|linebreaksbr }}</p>
 				</div>
 			</div>
@@ -29,22 +30,22 @@
 		
 		<!-- Info about request -->
 		<fieldset class="module aligned ">
-			<h2>Request info</h2>
+			<h2>{% trans "Request info" %}</h2>
 			<div class="form-row">
 				<div>
-					<label>Date:</label>
+					<label>{% trans "Date" %}:</label>
 					<p>{{ original.audit_request.date }}</p>
 				</div>
 			</div>
 			<div class="form-row">
 				<div>
-					<label>Request ID:</label>
+					<label>{% trans "Request ID" %}:</label>
 					<p>{{ original.audit_request.request_id }}</p>
 				</div>
 			</div>
 			<div class="form-row">
 				<div>
-					<label>Username:</label>
+					<label>{% trans "Username" %}:</label>
 					<p>{{ original.audit_request.user }}</p>
 				</div>
 			</div>
@@ -56,7 +57,7 @@
 			</div>
 			<div class="form-row">
 				<div>
-					<label>path:</label>
+					<label>{% trans "path" %}:</label>
 					<p>{{ original.audit_request.path }}</p>
 				</div>
 			</div>
@@ -64,13 +65,13 @@
 		
 		<!-- Fields -->
 		<fieldset class="module aligned ">
-			<h2>Fields were changed</h2>
+			<h2>{% trans "Fields were changed" %}</h2>
 			<div class="form-row">
 				<table width="400">
 					<tr>
-						<th align="left">Field</th>
-						<th align="left">Old value</th>
-						<th align="left">New value</th>
+						<th align="left">{% trans "Field" %}</th>
+						<th align="left">{% trans "Old value" %}</th>
+						<th align="left">{% trans "New value" %}</th>
 					</tr>
 					{% for fc in original.field_changes.all %}
 						<tr>

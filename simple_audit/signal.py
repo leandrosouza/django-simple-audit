@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from .models import Audit, AuditChange, AuditRequest
 from .middleware import threadlocals
+from django.utils.translation import ugettext_lazy as _
+
 
 MODEL_LIST = set()
 LOG = logging.getLogger(__name__)
@@ -139,7 +141,9 @@ def dict_diff(old, new):
 
 
 def format_value(v):
-    return str(v)
+    if isinstance(v, basestring):
+        return u"'%s'" % v
+    return unicode(v)
 
 
 def save_audit(instance, operation, kwargs={}):
@@ -183,8 +187,8 @@ def save_audit(instance, operation, kwargs={}):
             #is there any change?
             if not changed_fields:
                 persist_audit = False
-            audit.description = u'%s.' % (u"\n".join([u"%s: from %s to %s"
-                % (k, format_value(v[0]), format_value(v[1])) for k, v in changed_fields.items()]))
+            audit.description = u"\n".join([u"%s %s: %s %s %s %s"
+                % (_("field"), k, _("was changed from"), format_value(v[0]), _("to"), format_value(v[1])) for k, v in changed_fields.items()])
 
         if request_id:
             audit.audit_request = get_or_create_audit_request(request_id)

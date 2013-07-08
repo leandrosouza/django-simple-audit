@@ -1,0 +1,114 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-07-08 18:13-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: admin.py:15
+msgid "Object"
+msgstr "Objeto"
+
+#: admin.py:49 templates/admin/simple_audit/audit/change_form.html:25
+msgid "Description"
+msgstr "Descrição"
+
+#: admin.py:58 admin.py:74
+msgid "Click to filter"
+msgstr "Clique para filtrar"
+
+#: admin.py:64
+msgid "Current Content"
+msgstr "Objeto"
+
+#: admin.py:70 templates/admin/simple_audit/audit/change_form.html:36
+msgid "Date"
+msgstr "Data"
+
+#: admin.py:76
+msgid "User"
+msgstr "Usuário"
+
+#: models.py:20
+msgid "add"
+msgstr "adicionar"
+
+#: models.py:21
+msgid "change"
+msgstr "alterar"
+
+#: models.py:22
+msgid "delete"
+msgstr "excluir"
+
+#: models.py:24 templates/admin/simple_audit/audit/change_form.html:19
+msgid "Operation"
+msgstr "Ação"
+
+#: signal.py:191
+#, fuzzy
+msgid "field"
+msgstr "Campo"
+
+#: signal.py:191
+msgid "was changed from"
+msgstr "foi alterado de"
+
+#: signal.py:191
+msgid "to"
+msgstr "para"
+
+#: templates/admin/simple_audit/audit/change_form.html:10
+msgid "Object info"
+msgstr "Informações do Objeto"
+
+#: templates/admin/simple_audit/audit/change_form.html:13
+msgid "Content type"
+msgstr "Objeto"
+
+#: templates/admin/simple_audit/audit/change_form.html:33
+#, fuzzy
+msgid "Request info"
+msgstr "Informações da requisição"
+
+#: templates/admin/simple_audit/audit/change_form.html:42
+msgid "Request ID"
+msgstr "ID da Requisição"
+
+#: templates/admin/simple_audit/audit/change_form.html:48
+#, fuzzy
+msgid "Username"
+msgstr "Usuário"
+
+#: templates/admin/simple_audit/audit/change_form.html:60
+msgid "path"
+msgstr "url"
+
+#: templates/admin/simple_audit/audit/change_form.html:68
+msgid "Fields were changed"
+msgstr "Campos que foram alterados"
+
+#: templates/admin/simple_audit/audit/change_form.html:72
+msgid "Field"
+msgstr "Campo"
+
+#: templates/admin/simple_audit/audit/change_form.html:73
+msgid "Old value"
+msgstr "Valor antigo"
+
+#: templates/admin/simple_audit/audit/change_form.html:74
+msgid "New value"
+msgstr "Novo valor"

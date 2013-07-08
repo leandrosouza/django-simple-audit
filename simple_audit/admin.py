@@ -12,7 +12,7 @@ from .signal import MODEL_LIST
 class ContentTypeListFilter(SimpleListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
-    title = _('content type')
+    title = _('Object')
     parameter_name = 'content_type__id__exact'
 
     def lookups(self, request, model_admin):
@@ -46,7 +46,7 @@ class AuditAdmin(admin.ModelAdmin):
         desc = "<br/>".join(escape(audit.description or "").split('\n'))
         return desc
     audit_description.allow_tags = True
-    audit_description.short_description = "Description"
+    audit_description.short_description = _("Description")
 
     def audit_content(self, audit):
         if audit.content_object:
@@ -54,25 +54,26 @@ class AuditAdmin(admin.ModelAdmin):
         else:
             obj_string = u""
 
-        return "<a title='Click to filter' href='%(base)s?content_type__id__exact=%(type_id)s&object_id__exact=%(id)s'>%(type)s: %(obj)s</a>" % {
+        return "<a title='%(filter)s' href='%(base)s?content_type__id__exact=%(type_id)s&object_id__exact=%(id)s'>%(type)s: %(obj)s</a>" % {
+            'filter': unicode(_("Click to filter")),
             'base': reverse('admin:simple_audit_audit_changelist'),
             'type': audit.content_type,
             'type_id': audit.content_type.id,
             'obj': obj_string,
             'id': audit.object_id}
-    audit_content.short_description = "Current Content"
+    audit_content.short_description = _("Current Content")
     audit_content.allow_tags = True
 
     def audit_date(self, audit):
         return audit.audit_request.date
     audit_date.admin_order_field = "audit_request__date"
-    audit_date.short_description = u"Date"
+    audit_date.short_description = _("Date")
 
     def audit_user(self, audit):
-        return u"<a title='Click to filter' href='%s?user=%d'>%s</a>" \
-            % (reverse('admin:simple_audit_audit_changelist'), audit.audit_request.user.id, audit.audit_request.user)
+        return u"<a title='%s' href='%s?user=%d'>%s</a>" \
+            % (_("Click to filter"), reverse('admin:simple_audit_audit_changelist'), audit.audit_request.user.id, audit.audit_request.user)
     audit_user.admin_order_field = "audit_request__user"
-    audit_user.short_description = u"User"
+    audit_user.short_description = _("User")
     audit_user.allow_tags = True
 
     def queryset(self, request):
