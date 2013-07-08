@@ -9,6 +9,27 @@ MODEL_LIST = set()
 LOG = logging.getLogger(__name__)
 
 
+def audit_m2m_change(sender, **kwargs):
+    """
+    TODO: audit m2m changes
+    """
+    if kwargs.get('action'):
+        kwargs['m2m_change'] = True
+        if kwargs['action'] == "pre_add":
+            pass
+        elif kwargs['action'] == "post_add":
+            #save_audit(kwargs['instance'], Audit.CHANGE, kwargs=kwargs)
+            pass
+        elif kwargs['action'] == "pre_remove":
+            pass
+        elif kwargs['action'] == "post_remove":
+            save_audit(kwargs['instance'], Audit.DELETE, kwargs=kwargs)
+        elif kwargs['action'] == "pre_clear":
+            pass
+        elif kwargs['action'] == "post_clear":
+            pass
+
+
 def audit_post_save(sender, **kwargs):
     if kwargs['created']:
         save_audit(kwargs['instance'], Audit.ADD)
@@ -32,6 +53,22 @@ def register(*my_models):
             models.signals.post_save.connect(audit_post_save, sender=model)
             models.signals.post_delete.connect(audit_post_delete, sender=model)
 
+            # signals for m2m fields
+            m2ms = model._meta.get_m2m_with_model()
+            if m2ms:
+                for m2m in m2ms:
+                    try:
+                        sender_m2m = getattr(model, m2m[0].name).through
+                        models.signals.m2m_changed.connect(audit_m2m_change, sender=sender_m2m)
+                    except Exception, e:
+                        LOG.warning("could not create signal for m2m field: %s" % e)
+
+
+def register_m2m(*my_models):
+    for model in my_models:
+        if model is not None:
+            models.signals.m2m_changed.connect(audit_m2m_change, sender=model)
+
 NOT_ASSIGNED = object()
 
 
@@ -43,10 +80,17 @@ def get_or_create_audit_request(request_id):
         audit_request = AuditRequest()
         audit_request.request_id = request_id
         audit_request.path = request.get_full_path()
-        audit_request.ip = request.META['REMOTE_ADDR']
+        #get real ip
+        if 'HTTP_X_FORWARDED_FOR' in request.META:
+            audit_request.ip = request.META['HTTP_X_FORWARDED_FOR']
+        elif 'Client-IP' in request.META:
+            audit_request.ip = request.META['Client-IP']
+        else:
+            audit_request.ip = request.META['REMOTE_ADDR']
         audit_request.user = threadlocals.get_current_user()
         audit_request.save()
     return audit_request
+
 
 def get_value(obj, attr):
     """
@@ -57,12 +101,14 @@ def get_value(obj, attr):
             return getattr(obj, attr).__unicode__()
         except:
             value = getattr(obj, attr)
-            if value.__class__.__name__ == 'RelatedManager':
+            class_name = value.__class__.__name__
+            if hasattr(value, 'all'):
                 return [v.__unicode__() for v in value.all()]
             else:
                 return value
     else:
         return None
+
 
 def to_dict(obj):
     if obj is None:
@@ -71,12 +117,13 @@ def to_dict(obj):
     if isinstance(obj, dict):
         return dict.copy()
 
-    state = {}            
+    state = {}
 
     for key in obj._meta.get_all_field_names():
         state[key] = get_value(obj, key)
 
     return state
+
 
 def dict_diff(old, new):
 
@@ -87,7 +134,7 @@ def dict_diff(old, new):
         new_value = new.get(key, None)
         if old_value != new_value:
             diff[key] = (old_value, new_value)
-            
+
     return diff
 
 
@@ -95,13 +142,20 @@ def format_value(v):
     return str(v)
 
 
-def save_audit(instance, operation):
+def save_audit(instance, operation, kwargs={}):
     """
-    save the audit. 
+    Saves the audit. 
     However, the variable persist_audit controls if the audit should be really
     saved to the database or not. This variable is only affected in a change operation. If no
     change is detected than it is setted to False.
+
+    Keyword arguments:
+    instance -- instance
+    operation -- operation type (add, change, delete)
+    kwargs -- kwargs dict sent from m2m signal
     """
+
+    m2m_change = kwargs.get('m2m_change', False)
 
     try:
         persist_audit = True
@@ -115,12 +169,16 @@ def save_audit(instance, operation):
         old_state = {}
         try:
             if operation == Audit.CHANGE and instance.pk:
-                old_state = to_dict(instance.__class__.objects.get(pk=instance.pk))
+                if not m2m_change:
+                    old_state = to_dict(instance.__class__.objects.get(pk=instance.pk))
+                else:
+                    #TODO: m2m change
+                    old_state = to_dict(instance.__class__.objects.get(pk=instance.pk))
         except:
             pass
 
         changed_fields = dict_diff(old_state, new_state)
-            
+
         if operation == Audit.CHANGE:
             #is there any change?
             if not changed_fields:
@@ -133,7 +191,7 @@ def save_audit(instance, operation):
 
         if persist_audit:
             audit.save()
-        
+
             for field, (old_value, new_value) in changed_fields.items():
                 change = AuditChange()
                 change.audit = audit
@@ -142,4 +200,5 @@ def save_audit(instance, operation):
                 change.old_value = old_value
                 change.save()
     except:
-        LOG.error(u'Error registering auditing to %s: (%s) %s', repr(instance), type(instance), getattr(instance, '__dict__', None))
+        LOG.error(u'Error registering auditing to %s: (%s) %s', repr(instance), type(instance),
+                                                                getattr(instance, '__dict__', None))
