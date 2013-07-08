@@ -1,7 +1,7 @@
 ****************************************
 django simple audit
 ****************************************
-This applications was created for audit all changes of models instances and maintain a log of the changes
+This applications was created to audit model's changes and maintain a log of them
 
 
 Installation
@@ -78,5 +78,11 @@ to audit a model you need import `simple_audit` and then register the model to b
 Dependencies
 ============
 
-* Django == 1.4.x
+* Django >= 1.4.x
 * django.contrib.contenttypes installed in INSTALLED_APPS
+
+
+TODO
+====
+* Improve tests
+* Audit changes in ManyToMany fields
