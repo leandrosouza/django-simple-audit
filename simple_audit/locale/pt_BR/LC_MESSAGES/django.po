@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-08 18:13-0300\n"
+"POT-Creation-Date: 2013-07-11 14:34-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,10 +34,6 @@ msgstr "Clique para filtrar"
 msgid "Current Content"
 msgstr "Objeto"
 
-#: admin.py:70 templates/admin/simple_audit/audit/change_form.html:36
-msgid "Date"
-msgstr "Data"
-
 #: admin.py:76
 msgid "User"
 msgstr "Usuário"
@@ -54,7 +50,12 @@ msgstr "alterar"
 msgid "delete"
 msgstr "excluir"
 
-#: models.py:24 templates/admin/simple_audit/audit/change_form.html:19
+#: models.py:24 models.py:57
+#: templates/admin/simple_audit/audit/change_form.html:36
+msgid "Date"
+msgstr "Data"
+
+#: models.py:25 templates/admin/simple_audit/audit/change_form.html:19
 msgid "Operation"
 msgstr "Ação"
 
@@ -112,3 +113,6 @@ msgstr "Valor antigo"
 #: templates/admin/simple_audit/audit/change_form.html:74
 msgid "New value"
 msgstr "Novo valor"
+
+#~ msgid "date"
+#~ msgstr "Data"
