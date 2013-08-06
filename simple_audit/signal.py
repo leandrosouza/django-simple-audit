@@ -1,9 +1,7 @@
 # -*- coding:utf-8 -*-
 import logging
 from django.db import models
-from django.contrib.contenttypes.models import ContentType
 from .models import Audit, AuditChange, AuditRequest
-from .middleware import threadlocals
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -72,26 +70,6 @@ def register_m2m(*my_models):
             models.signals.m2m_changed.connect(audit_m2m_change, sender=model)
 
 NOT_ASSIGNED = object()
-
-
-def get_or_create_audit_request(request_id):
-    request = threadlocals.get_current_request()
-    try:
-        audit_request = AuditRequest.objects.get(request_id=request_id)
-    except AuditRequest.DoesNotExist:
-        audit_request = AuditRequest()
-        audit_request.request_id = request_id
-        audit_request.path = request.get_full_path()
-        #get real ip
-        if 'HTTP_X_FORWARDED_FOR' in request.META:
-            audit_request.ip = request.META['HTTP_X_FORWARDED_FOR']
-        elif 'Client-IP' in request.META:
-            audit_request.ip = request.META['Client-IP']
-        else:
-            audit_request.ip = request.META['REMOTE_ADDR']
-        audit_request.user = threadlocals.get_current_user()
-        audit_request.save()
-    return audit_request
 
 
 def get_value(obj, attr):
@@ -191,7 +169,7 @@ def save_audit(instance, operation, kwargs={}):
                 % (_("field"), k, _("was changed from"), format_value(v[0]), _("to"), format_value(v[1])) for k, v in changed_fields.items()])
 
         if request_id:
-            audit.audit_request = get_or_create_audit_request(request_id)
+            audit.audit_request = AuditRequest.current_request(True)
 
         if persist_audit:
             audit.save()

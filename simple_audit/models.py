@@ -1,6 +1,8 @@
 # -*- coding:utf-8 -*-
 
 import logging
+import threading
+import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -51,6 +53,9 @@ class AuditChange(models.Model):
 
 
 class AuditRequest(models.Model):
+
+    THREAD_LOCAL = threading.local()
+
     request_id = models.CharField(max_length=255)
     ip = models.IPAddressField()
     path = models.CharField(max_length=1024)
@@ -59,3 +64,47 @@ class AuditRequest(models.Model):
 
     class Meta:
         db_table = 'audit_request'
+
+    @staticmethod
+    def new_request(path, user, ip):
+        """
+        Create a new request from a path, user and ip and put it on thread context.
+        The new request not be saved until first use or calling method current_request(True)
+        """
+        audit_request = AuditRequest()
+        audit_request.ip = ip
+        audit_request.user = user
+        audit_request.path = path
+        audit_request.request_id = uuid.uuid4().hex
+        AuditRequest.THREAD_LOCAL.current = audit_request
+        return audit_request
+
+    @staticmethod
+    def set_request_from_id(request_id):
+        """ Load an old request from database and put it again in thread context. If request_id doesn't
+        exist, thread context will be cleared """
+        try:
+            audit_request = AuditRequest.objects.get(request_id)
+            AuditRequest.THREAD_LOCAL.current = audit_request
+            return audit_request
+        except AuditRequest.DoesNotExist:
+            AuditRequest.THREAD_LOCAL.current = None
+            return None
+
+    @staticmethod
+    def current_request(force_save=False):
+        """ Get current request from thread context (or None doesn't exist). If you specify force_save,
+        current request will be saved on database first.
+        """
+        audit_request = getattr(AuditRequest.THREAD_LOCAL, 'current', None)
+        if force_save and audit_request is not None and audit_request.pk is None:
+            audit_request.save()
+        return audit_request
+
+    @staticmethod
+    def cleanup_request():
+        """
+        Remove audit request from thread context
+        """
+        AuditRequest.THREAD_LOCAL.current = None
+
