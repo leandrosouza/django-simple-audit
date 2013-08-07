@@ -1,7 +1,7 @@
 # threadlocals middleware
 from .models import AuditRequest
 
-class RequestThreadLocalMiddleware(object):
+class TrackingRequestOnThreadLocalMiddleware(object):
     """Middleware that gets various objects from the
     request object and saves them in thread local storage."""
     def process_request(self, request):

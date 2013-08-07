@@ -14,7 +14,7 @@ You can install django-simple-audit in 2 ways: using pip or by setup.py install
 
 
 Then modify your settings.py, adding the package `simple_audit` in INSTALLED_APPS and in MIDDLEWARE_CLASSES add
-`simple_audit.middleware.threadlocals.RequestThreadLocalMiddleware`:
+`simple_audit.middleware.TrackingRequestOnThreadLocalMiddleware`:
 
 .. code-block:: bash
 
@@ -25,7 +25,7 @@ Then modify your settings.py, adding the package `simple_audit` in INSTALLED_APP
 
 	MIDDLEWARE_CLASSES = (
 	     '...',
-	     'simple_audit.middleware.threadlocals.RequestThreadLocalMiddleware',
+	     'simple_audit.middleware.TrackingRequestOnThreadLocalMiddleware',
 	)
 
 
@@ -37,7 +37,7 @@ Tracking changes on a model
 
 to audit a model you need import `simple_audit` and then register the model to be audited.
 
-.. code-block:: bash
+.. code-block:: python
 
 	from django.db import models
 	import simple_audit
@@ -73,6 +73,22 @@ to audit a model you need import `simple_audit` and then register the model to b
 
 
 	simple_audit.register(Message, Owner, VirtualMachine)
+
+Advanced Usage (without httprequest or our middleware)
+--------------------------------------------------------
+
+You can use django-simple-audit without an http request (for example in management command). In this situation
+there is no http request on thread context. To ensure gathering all modification on a single AuditRequest, you can
+specify it:
+
+.. code-block:: python
+
+	AuditRequest.new_request(path, user, ip)
+	try:
+	    # my code... in same thread
+	finally:
+	    AuditRequest.cleanup_request()
+
 
 
 Dependencies
