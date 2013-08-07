@@ -141,7 +141,6 @@ def save_audit(instance, operation, kwargs={}):
 
     try:
         persist_audit = True
-        request_id = threadlocals.get_current_request_id()
 
         audit = Audit()
         audit.content_object = instance
@@ -168,8 +167,7 @@ def save_audit(instance, operation, kwargs={}):
             audit.description = u"\n".join([u"%s %s: %s %s %s %s"
                 % (_("field"), k, _("was changed from"), format_value(v[0]), _("to"), format_value(v[1])) for k, v in changed_fields.items()])
 
-        if request_id:
-            audit.audit_request = AuditRequest.current_request(True)
+        audit.audit_request = AuditRequest.current_request(True)
 
         if persist_audit:
             audit.save()

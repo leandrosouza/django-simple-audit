@@ -38,6 +38,16 @@ class Audit(models.Model):
     class Meta:
         db_table = 'audit'
 
+    @staticmethod
+    def register(audit_obj, description, operation=None):
+        audit = Audit()
+        audit.operation = operation or Audit.CHANGE
+        audit.content_object = audit_obj
+        audit.description = description
+        audit.audit_request = AuditRequest.current_request(True)
+        audit.save()
+        return audit
+
     def __unicode__(self):
         return u"%s" % (self.operation)
 
@@ -76,6 +86,9 @@ class AuditRequest(models.Model):
         audit_request.user = user
         audit_request.path = path
         audit_request.request_id = uuid.uuid4().hex
+        while AuditRequest.objects.filter(request_id=audit_request.request_id).exists():
+            audit_request.request_id = uuid.uuid4().hex
+
         AuditRequest.THREAD_LOCAL.current = audit_request
         return audit_request
 
@@ -83,13 +96,14 @@ class AuditRequest(models.Model):
     def set_request_from_id(request_id):
         """ Load an old request from database and put it again in thread context. If request_id doesn't
         exist, thread context will be cleared """
-        try:
-            audit_request = AuditRequest.objects.get(request_id)
-            AuditRequest.THREAD_LOCAL.current = audit_request
-            return audit_request
-        except AuditRequest.DoesNotExist:
-            AuditRequest.THREAD_LOCAL.current = None
-            return None
+        audit_request = None
+        if request_id is not None:
+            try:
+                audit_request = AuditRequest.objects.get(request_id=request_id)
+            except AuditRequest.DoesNotExist:
+                pass
+
+        AuditRequest.THREAD_LOCAL.current = audit_request
 
     @staticmethod
     def current_request(force_save=False):
