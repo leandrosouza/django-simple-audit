@@ -39,8 +39,13 @@ class ContentTypeListFilter(SimpleListFilter):
 
 class AuditAdmin(admin.ModelAdmin):
     search_fields = ("audit_request__user__username", "description", "audit_request__request_id", )
-    list_display = ("date", "audit_content", "operation", "audit_user", "audit_description", )
+    list_display = ("format_date", "audit_content", "operation", "audit_user", "audit_description", )
     list_filter = ("operation", ContentTypeListFilter,)
+
+    def format_date(self, obj):
+        return obj.date.strftime('%d/%m/%Y %H:%M')
+    format_date.short_description = 'Date'
+    format_date.admin_order_field = 'date'
 
     def audit_description(self, audit):
         desc = "<br/>".join(escape(audit.description or "").split('\n'))
