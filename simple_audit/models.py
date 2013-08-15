@@ -30,6 +30,7 @@ class Audit(models.Model):
     content_object = generic.GenericForeignKey('content_type', 'object_id')
     audit_request = models.ForeignKey("AuditRequest", null=True)
     description = models.TextField()
+    obj_description = models.CharField(max_length=100, db_index=True, null=True, blank=True)
 
     @property
     def operation_name(self):
@@ -44,6 +45,7 @@ class Audit(models.Model):
         audit.operation = operation or Audit.CHANGE
         audit.content_object = audit_obj
         audit.description = description
+        audit.obj_description = audit_obj and unicode(audit_obj)
         audit.audit_request = AuditRequest.current_request(True)
         audit.save()
         return audit

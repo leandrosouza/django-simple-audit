@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import logging
 from django.db import models
-from .models import Audit, AuditChange, AuditRequest
+from .models import Audit, AuditChange
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -81,7 +81,6 @@ def get_value(obj, attr):
             return getattr(obj, attr).__unicode__()
         except:
             value = getattr(obj, attr)
-            class_name = value.__class__.__name__
             if hasattr(value, 'all'):
                 return [v.__unicode__() for v in value.all()]
             else:
@@ -126,7 +125,7 @@ def format_value(v):
 
 def save_audit(instance, operation, kwargs={}):
     """
-    Saves the audit. 
+    Saves the audit.
     However, the variable persist_audit controls if the audit should be really
     saved to the database or not. This variable is only affected in a change operation. If no
     change is detected than it is setted to False.
@@ -141,10 +140,6 @@ def save_audit(instance, operation, kwargs={}):
 
     try:
         persist_audit = True
-
-        audit = Audit()
-        audit.content_object = instance
-        audit.operation = operation
 
         new_state = to_dict(instance)
         old_state = {}
@@ -164,13 +159,22 @@ def save_audit(instance, operation, kwargs={}):
             #is there any change?
             if not changed_fields:
                 persist_audit = False
-            audit.description = u"\n".join([u"%s %s: %s %s %s %s"
-                % (_("field"), k, _("was changed from"), format_value(v[0]), _("to"), format_value(v[1])) for k, v in changed_fields.items()])
-
-        audit.audit_request = AuditRequest.current_request(True)
+            description = u"\n".join([u"%s %s: %s %s %s %s" %
+                (
+                    _("field"),
+                    k,
+                    _("was changed from"),
+                    format_value(v[0]),
+                    _("to"),
+                    format_value(v[1]),
+                ) for k, v in changed_fields.items()])
+        elif operation == Audit.DELETE:
+            description = _('Deleted %s') % unicode(instance)
+        elif operation == Audit.ADD:
+            description = _('Added %s') % unicode(instance)
 
         if persist_audit:
-            audit.save()
+            audit = Audit.register(instance, description, operation)
 
             for field, (old_value, new_value) in changed_fields.items():
                 change = AuditChange()
@@ -180,5 +184,5 @@ def save_audit(instance, operation, kwargs={}):
                 change.old_value = old_value
                 change.save()
     except:
-        LOG.error(u'Error registering auditing to %s: (%s) %s', repr(instance), type(instance),
-                                                                getattr(instance, '__dict__', None))
+        LOG.error(u'Error registering auditing to %s: (%s) %s',
+            repr(instance), type(instance), getattr(instance, '__dict__', None), exc_info=True)

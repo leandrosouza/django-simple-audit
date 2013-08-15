@@ -11,7 +11,7 @@
 			<div class="form-row">
 				<div>
 					<label>{% trans "Content type" %}:</label>
-					<p>{{ original.content_type }}</p>
+					<p>{{ original.content_type }} - {{ original.obj_description }} {% trans "with" %} pk={{ original.object_id }}</p>
 				</div>
 			</div>
 			<div class="form-row">

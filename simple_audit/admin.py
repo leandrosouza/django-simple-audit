@@ -38,7 +38,7 @@ class ContentTypeListFilter(SimpleListFilter):
 
 
 class AuditAdmin(admin.ModelAdmin):
-    search_fields = ("audit_request__user__username", "description", "audit_request__request_id", )
+    search_fields = ("audit_request__user__username", "description", "audit_request__request_id", "obj_description", )
     list_display = ("format_date", "audit_content", "operation", "audit_user", "audit_description", )
     list_filter = ("operation", ContentTypeListFilter,)
 
@@ -54,10 +54,7 @@ class AuditAdmin(admin.ModelAdmin):
     audit_description.short_description = _("Description")
 
     def audit_content(self, audit):
-        if audit.content_object:
-            obj_string = audit.content_object
-        else:
-            obj_string = u""
+        obj_string = audit.obj_description or unicode(audit.content_object)
 
         return "<a title='%(filter)s' href='%(base)s?content_type__id__exact=%(type_id)s&object_id__exact=%(id)s'>%(type)s: %(obj)s</a>" % {
             'filter': unicode(_("Click to filter")),
@@ -68,11 +65,6 @@ class AuditAdmin(admin.ModelAdmin):
             'id': audit.object_id}
     audit_content.short_description = _("Current Content")
     audit_content.allow_tags = True
-
-    # def audit_date(self, audit):
-    #     return audit.audit_request.date
-    # audit_date.admin_order_field = "audit_request__date"
-    # audit_date.short_description = _("Date")
 
     def audit_user(self, audit):
         return u"<a title='%s' href='%s?user=%d'>%s</a>" \
