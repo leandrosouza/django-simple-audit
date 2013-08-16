@@ -40,7 +40,7 @@ def audit_pre_save(sender, **kwargs):
         save_audit(kwargs['instance'], Audit.CHANGE)
 
 
-def audit_post_delete(sender, **kwargs):
+def audit_pre_delete(sender, **kwargs):
     save_audit(kwargs['instance'], Audit.DELETE)
 
 
@@ -51,7 +51,7 @@ def register(*my_models):
             MODEL_LIST.add(model)
             models.signals.pre_save.connect(audit_pre_save, sender=model)
             models.signals.post_save.connect(audit_post_save, sender=model)
-            models.signals.post_delete.connect(audit_post_delete, sender=model)
+            models.signals.pre_delete.connect(audit_pre_delete, sender=model)
 
             # signals for m2m fields
             m2ms = model._meta.get_m2m_with_model()
@@ -173,6 +173,7 @@ def save_audit(instance, operation, kwargs={}):
         elif operation == Audit.ADD:
             description = _('Added %s') % unicode(instance)
 
+        print "called audit with operation=%s instance=%s persist=%s" % (operation, instance, persist_audit)
         if persist_audit:
             audit = Audit.register(instance, description, operation)
 

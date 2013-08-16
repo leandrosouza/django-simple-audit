@@ -42,7 +42,7 @@ class Audit(models.Model):
     @staticmethod
     def register(audit_obj, description, operation=None):
         audit = Audit()
-        audit.operation = operation or Audit.CHANGE
+        audit.operation = Audit.CHANGE if operation is None else operation
         audit.content_object = audit_obj
         audit.description = description
         audit.obj_description = audit_obj and unicode(audit_obj)
