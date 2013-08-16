@@ -76,7 +76,7 @@
 					{% for fc in original.field_changes.all %}
 						<tr>
 							<td align="left">{{ fc.field }}</td>
-							{% if original.operation_name == "delete" %}
+							{% if original.operation_name == "delete" or original.operation_name == "excluir"%}
 								<td align="left">{{ fc.new_value|default_if_none:'' }}</td>
 								<td align="left"></td>
 							{% else %}

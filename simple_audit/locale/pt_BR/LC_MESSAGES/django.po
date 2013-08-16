@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-11 14:34-0300\n"
+"POT-Creation-Date: 2013-08-16 16:35-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,55 +22,65 @@ msgstr ""
 msgid "Object"
 msgstr "Objeto"
 
-#: admin.py:49 templates/admin/simple_audit/audit/change_form.html:25
+#: admin.py:54 templates/admin/simple_audit/audit/change_form.html:25
 msgid "Description"
 msgstr "Descrição"
 
-#: admin.py:58 admin.py:74
+#: admin.py:60 admin.py:71
 msgid "Click to filter"
 msgstr "Clique para filtrar"
 
-#: admin.py:64
+#: admin.py:66
 msgid "Current Content"
 msgstr "Objeto"
 
-#: admin.py:76
+#: admin.py:73
 msgid "User"
 msgstr "Usuário"
 
-#: models.py:20
+#: models.py:22
 msgid "add"
 msgstr "adicionar"
 
-#: models.py:21
+#: models.py:23
 msgid "change"
 msgstr "alterar"
 
-#: models.py:22
+#: models.py:24
 msgid "delete"
 msgstr "excluir"
 
-#: models.py:24 models.py:57
+#: models.py:26 models.py:74
 #: templates/admin/simple_audit/audit/change_form.html:36
 msgid "Date"
 msgstr "Data"
 
-#: models.py:25 templates/admin/simple_audit/audit/change_form.html:19
+#: models.py:27 templates/admin/simple_audit/audit/change_form.html:19
 msgid "Operation"
 msgstr "Ação"
 
-#: signal.py:191
+#: signal.py:164
 #, fuzzy
 msgid "field"
 msgstr "Campo"
 
-#: signal.py:191
+#: signal.py:166
 msgid "was changed from"
 msgstr "foi alterado de"
 
-#: signal.py:191
+#: signal.py:168
 msgid "to"
 msgstr "para"
+
+#: signal.py:172
+#, fuzzy, python-format
+msgid "Deleted %s"
+msgstr "excluir"
+
+#: signal.py:174
+#, python-format
+msgid "Added"
+msgstr "adicionado"
 
 #: templates/admin/simple_audit/audit/change_form.html:10
 msgid "Object info"
@@ -79,6 +89,10 @@ msgstr "Informações do Objeto"
 #: templates/admin/simple_audit/audit/change_form.html:13
 msgid "Content type"
 msgstr "Objeto"
+
+#: templates/admin/simple_audit/audit/change_form.html:14
+msgid "with"
+msgstr "com"
 
 #: templates/admin/simple_audit/audit/change_form.html:33
 #, fuzzy
