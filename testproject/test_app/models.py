@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.db import models
+from django.contrib.auth.models import User
 import simple_audit
 
 
@@ -33,4 +34,4 @@ class VirtualMachine(models.Model):
         return self.name
 
 
-simple_audit.register(Message, Owner, VirtualMachine)
+simple_audit.register(Message, Owner, VirtualMachine, User)
