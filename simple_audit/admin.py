@@ -67,8 +67,13 @@ class AuditAdmin(admin.ModelAdmin):
     audit_content.allow_tags = True
 
     def audit_user(self, audit):
-        return u"<a title='%s' href='%s?user=%d'>%s</a>" \
-            % (_("Click to filter"), reverse('admin:simple_audit_audit_changelist'), audit.audit_request.user.id, audit.audit_request.user)
+        if audit.audit_request:
+            return u"<a title='%s' href='%s?user=%d'>%s</a>" \
+                % (_("Click to filter"), reverse('admin:simple_audit_audit_changelist'), audit.audit_request.user.id, audit.audit_request.user)
+        else:
+            return u"%s" \
+                % (_("unknown"))
+            
     audit_user.admin_order_field = "audit_request__user"
     audit_user.short_description = _("User")
     audit_user.allow_tags = True
