@@ -173,7 +173,7 @@ def save_audit(instance, operation, kwargs={}):
         elif operation == Audit.ADD:
             description = _('Added %s') % unicode(instance)
 
-        print "called audit with operation=%s instance=%s persist=%s" % (operation, instance, persist_audit)
+        LOG.debug("called audit with operation=%s instance=%s persist=%s" % (operation, instance, persist_audit))
         if persist_audit:
             audit = Audit.register(instance, description, operation)
 
