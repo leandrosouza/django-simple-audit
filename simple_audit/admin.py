@@ -53,12 +53,15 @@ class AuditAdmin(admin.ModelAdmin):
     audit_description.allow_tags = True
     audit_description.short_description = _("Description")
 
+    def get_change_list_url(self):
+        return reverse('admin:%s_%s_changelist' % (self.model._meta.app_label, self.model._meta.module_name))
+
     def audit_content(self, audit):
         obj_string = audit.obj_description or unicode(audit.content_object)
 
         return "<a title='%(filter)s' href='%(base)s?content_type__id__exact=%(type_id)s&object_id__exact=%(id)s'>%(type)s: %(obj)s</a>" % {
             'filter': unicode(_("Click to filter")),
-            'base': reverse('admin:simple_audit_audit_changelist'),
+            'base': self.get_change_list_url(),
             'type': audit.content_type,
             'type_id': audit.content_type.id,
             'obj': obj_string,
@@ -69,11 +72,11 @@ class AuditAdmin(admin.ModelAdmin):
     def audit_user(self, audit):
         if audit.audit_request:
             return u"<a title='%s' href='%s?user=%d'>%s</a>" \
-                % (_("Click to filter"), reverse('admin:simple_audit_audit_changelist'), audit.audit_request.user.id, audit.audit_request.user)
+                % (_("Click to filter"), self.get_change_list_url(), audit.audit_request.user.id, audit.audit_request.user)
         else:
             return u"%s" \
                 % (_("unknown"))
-            
+
     audit_user.admin_order_field = "audit_request__user"
     audit_user.short_description = _("User")
     audit_user.allow_tags = True
