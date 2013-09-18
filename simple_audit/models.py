@@ -37,6 +37,7 @@ class Audit(models.Model):
         return dict(self.OPERATION_CHOICES)[self.operation]
 
     class Meta:
+        app_label = 'audits'
         db_table = 'audit'
 
     @staticmethod
@@ -61,6 +62,7 @@ class AuditChange(models.Model):
     new_value = models.CharField(max_length=1024, null=True, blank=True)
 
     class Meta:
+        app_label = 'audits'
         db_table = 'audit_change'
 
 
@@ -75,6 +77,7 @@ class AuditRequest(models.Model):
     user = models.ForeignKey(User)
 
     class Meta:
+        app_label = 'audits'
         db_table = 'audit_request'
 
     @staticmethod
