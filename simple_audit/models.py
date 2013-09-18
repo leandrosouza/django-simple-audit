@@ -38,7 +38,6 @@ class Audit(models.Model):
 
     class Meta:
         db_table = 'audit'
-        app_label = 'Audits'
 
     @staticmethod
     def register(audit_obj, description, operation=None):
@@ -63,7 +62,6 @@ class AuditChange(models.Model):
 
     class Meta:
         db_table = 'audit_change'
-        app_label = 'Audits'
 
 
 class AuditRequest(models.Model):
@@ -78,7 +76,6 @@ class AuditRequest(models.Model):
 
     class Meta:
         db_table = 'audit_request'
-        app_label = 'Audits'
 
     @staticmethod
     def new_request(path, user, ip):
