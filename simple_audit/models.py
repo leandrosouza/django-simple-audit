@@ -14,6 +14,19 @@ from django.utils.translation import ugettext_lazy as _
 LOG = logging.getLogger(__name__)
 
 
+class CustomAppName(str):
+    def __new__(cls, value, title):
+        instance = str.__new__(cls, value)
+        instance._title = title
+        return instance
+
+    def title(self):
+        return self._title
+
+    __copy__ = lambda self: self
+    __deepcopy__ = lambda self, memodict: self
+
+
 class Audit(models.Model):
     ADD = 0
     CHANGE = 1
@@ -38,6 +51,8 @@ class Audit(models.Model):
 
     class Meta:
         db_table = 'audit'
+        app_label = CustomAppName('simple_audit', 'Audits')
+        verbose_name = u'Audit'
 
     @staticmethod
     def register(audit_obj, description, operation=None):
@@ -62,6 +77,8 @@ class AuditChange(models.Model):
 
     class Meta:
         db_table = 'audit_change'
+        app_label = CustomAppName('simple_audit', 'Audits')
+        verbose_name = u'Audit'
 
 
 class AuditRequest(models.Model):
@@ -76,6 +93,8 @@ class AuditRequest(models.Model):
 
     class Meta:
         db_table = 'audit_request'
+        app_label = CustomAppName('simple_audit', 'Audits')
+        verbose_name = u'Audit'
 
     @staticmethod
     def new_request(path, user, ip):
@@ -123,4 +142,3 @@ class AuditRequest(models.Model):
         Remove audit request from thread context
         """
         AuditRequest.THREAD_LOCAL.current = None
-
