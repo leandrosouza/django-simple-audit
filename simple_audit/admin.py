@@ -57,14 +57,13 @@ class AuditAdmin(admin.ModelAdmin):
             audit_obj = audit.content_object
             for change in audit.field_changes.all():
                 setattr(audit_obj, change.field, change.old_value)
-            force_insert = False
+            audit_obj.save(force_insert=False)
         elif audit.operation == Audit.DELETE:
             audit_obj = audit.content_type.model_class()(pk=audit.object_id)
             for change in audit.field_changes.all():
                 setattr(audit_obj, change.field, change.new_value)
-            force_insert = True
+            audit_obj.save(force_insert=True)
 
-        audit_obj.save(force_insert=force_insert)
         return redirect('admin:simple_audit_audit_changelist')
 
     def format_date(self, obj):
