@@ -5,6 +5,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
+from django.conf.urls import patterns, url
 from .models import Audit
 from .signal import MODEL_LIST
 
@@ -41,6 +43,29 @@ class AuditAdmin(admin.ModelAdmin):
     search_fields = ("audit_request__user__username", "description", "audit_request__request_id", "obj_description", )
     list_display = ("format_date", "audit_content", "operation", "audit_user", "audit_description", )
     list_filter = ("operation", ContentTypeListFilter,)
+
+    def get_urls(self):
+        urls = super(AuditAdmin, self).get_urls()
+        my_urls = patterns('',
+            url(r'^revert/(?P<audit_id>\d+)/$', self.admin_site.admin_view(self.revert_change), name='simple_audit_audit_revert')
+        )
+        return my_urls + urls
+
+    def revert_change(self, request, audit_id):
+        audit = Audit.objects.get(pk=audit_id)
+        if audit.operation == Audit.CHANGE:
+            audit_obj = audit.content_object
+            for change in audit.field_changes.all():
+                setattr(audit_obj, change.field, change.old_value)
+            force_insert = False
+        elif audit.operation == Audit.DELETE:
+            audit_obj = audit.content_type.model_class()(pk=audit.object_id)
+            for change in audit.field_changes.all():
+                setattr(audit_obj, change.field, change.new_value)
+            force_insert = True
+
+        audit_obj.save(force_insert=force_insert)
+        return redirect('admin:simple_audit_audit_changelist')
 
     def format_date(self, obj):
         return obj.date.strftime('%d/%m/%Y %H:%M')
