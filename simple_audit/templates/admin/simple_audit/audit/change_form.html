@@ -89,6 +89,8 @@
 			</div>
         </fieldset>
 
+
+        {% if original.operation != 0 %}
         <!-- Revert Change -->
         <fieldset class="module aligned">
             <h2>{% trans "Actions" %}</h2>
@@ -96,7 +98,7 @@
                 <a href='{%url 'admin:simple_audit_audit_revert' original.pk%}'>{% trans "Revert Changes" %}</a>
             </div>
         </fieldset>
-
+        {% endif %}
 	</div>
 </div>
 {% endblock %}
