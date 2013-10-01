@@ -13,6 +13,7 @@ class TrackingRequestOnThreadLocalMiddleware(object):
                 ip = request.META['Client-IP']
             else:
                 ip = request.META['REMOTE_ADDR']
+            ip = ip.split(",")[0]
             AuditRequest.new_request(request.get_full_path(), request.user, ip)
 
     def process_response(self, request, response):
