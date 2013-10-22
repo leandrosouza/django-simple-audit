@@ -31,12 +31,12 @@ def audit_m2m_change(sender, **kwargs):
 
 
 def audit_post_save(sender, **kwargs):
-    if kwargs['created']:
+    if kwargs['created'] and not kwargs.get('raw', False):
         save_audit(kwargs['instance'], Audit.ADD)
 
 
 def audit_pre_save(sender, **kwargs):
-    if kwargs['instance'].pk:
+    if kwargs['instance'].pk and not kwargs.get('raw', False):
         save_audit(kwargs['instance'], Audit.CHANGE)
 
 
