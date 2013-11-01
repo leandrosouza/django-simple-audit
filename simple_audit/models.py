@@ -72,8 +72,8 @@ class Audit(models.Model):
 class AuditChange(models.Model):
     audit = models.ForeignKey(Audit, related_name='field_changes')
     field = models.CharField(max_length=255)
-    old_value = models.CharField(max_length=1024, null=True, blank=True)
-    new_value = models.CharField(max_length=1024, null=True, blank=True)
+    old_value = models.TextField(null=True, blank=True)
+    new_value = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = 'audit_change'
