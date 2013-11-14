@@ -3,6 +3,7 @@ import logging
 from django.db import models
 from .models import Audit, AuditChange
 from django.utils.translation import ugettext_lazy as _
+import re
 
 
 MODEL_LIST = set()
@@ -109,8 +110,12 @@ def dict_diff(old, new):
     keys = set(old.keys() + new.keys())
     diff = {}
     for key in keys:
-        old_value = old.get(key, None)
-        new_value = new.get(key, None)
+        if re.match(key, 'password'):
+            old_value = 'xxxxxxxx'
+            new_value = "*" * len(new.get(key))
+        else:
+            old_value = old.get(key, None)
+            new_value = new.get(key, None)
         if old_value != new_value:
             diff[key] = (old_value, new_value)
 
