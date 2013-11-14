@@ -110,13 +110,12 @@ def dict_diff(old, new):
     keys = set(old.keys() + new.keys())
     diff = {}
     for key in keys:
-        if re.match(key, 'password'):
-            old_value = 'xxxxxxxx'
-            new_value = "*" * len(new.get(key))
-        else:
-            old_value = old.get(key, None)
-            new_value = new.get(key, None)
+        old_value = old.get(key, None)
+        new_value = new.get(key, None)
         if old_value != new_value:
+            if re.match(key, 'password'):
+                old_value = 'xxxxxxxx'
+                new_value = "*" * len(new.get(key))
             diff[key] = (old_value, new_value)
 
     return diff
