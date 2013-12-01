@@ -9,18 +9,31 @@ import re
 MODEL_LIST = set()
 LOG = logging.getLogger(__name__)
 
+def get_m2m_fields_for(instance=None):
+    return instance._meta._many_to_many()
+
+def get_m2m_values_for(instance=None):
+    values = {}
+    for m2m_field in get_m2m_fields_for(instance=instance):
+        values[m2m_field] = (m2m_field._get_val_from_obj(instance).all())
+    return values
 
 def audit_m2m_change(sender, **kwargs):
     """
     TODO: audit m2m changes
     """
     if kwargs.get('action'):
+        action = kwargs.get('action')
+        instance = kwargs.get('instance')
+        print "audit m2m_change > %s | %s" % (action, kwargs)
+        print "*" * 30
         kwargs['m2m_change'] = True
         if kwargs['action'] == "pre_add":
             pass
         elif kwargs['action'] == "post_add":
+            print "\t%s" % get_m2m_values_for(instance=instance)
             #save_audit(kwargs['instance'], Audit.CHANGE, kwargs=kwargs)
-            pass
+            # pass
         elif kwargs['action'] == "pre_remove":
             pass
         elif kwargs['action'] == "post_remove":
@@ -32,11 +45,15 @@ def audit_m2m_change(sender, **kwargs):
 
 
 def audit_post_save(sender, **kwargs):
+    print ">>> audit_post_save: %s" % kwargs
+    print "*" * 30
     if kwargs['created']:
         save_audit(kwargs['instance'], Audit.ADD)
 
 
 def audit_pre_save(sender, **kwargs):
+    print ">>> audit_pre_save: %s" % kwargs
+    print "*" * 30
     if kwargs['instance'].pk:
         save_audit(kwargs['instance'], Audit.CHANGE)
 
