@@ -52,7 +52,9 @@ def audit_post_save(sender, **kwargs):
 
 
 def audit_pre_save(sender, **kwargs):
+    instance=kwargs.get('instance')
     print ">>> audit_pre_save: %s" % kwargs
+    print "\t%s" % get_m2m_values_for(instance=instance)
     print "*" * 30
     if kwargs['instance'].pk:
         save_audit(kwargs['instance'], Audit.CHANGE)
