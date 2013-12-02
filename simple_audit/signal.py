@@ -40,11 +40,9 @@ def audit_m2m_change(sender, **kwargs):
                 THREAD_LOCAL.m2m_values = {"before_save" : {}, "after_save": {}}
                 
             THREAD_LOCAL.m2m_values["after_save"] = get_m2m_values_for(instance=instance)
-            print "\t %s" % THREAD_LOCAL.m2m_values
             THREAD_LOCAL.m2m_values["m2m_change"] = True
             save_audit(kwargs['instance'], Audit.CHANGE, kwargs=THREAD_LOCAL.m2m_values)
             del THREAD_LOCAL.m2m_values
-            # pass
         elif kwargs['action'] == "pre_remove":
             pass
         elif kwargs['action'] == "post_remove":
@@ -189,7 +187,7 @@ def save_audit(instance, operation, kwargs={}):
             pass
 
         changed_fields = dict_diff(old_state, new_state)
-        print "changed_fields: %s" % changed_fields
+
         if operation == Audit.CHANGE:
             #is there any change?
             if not changed_fields:
