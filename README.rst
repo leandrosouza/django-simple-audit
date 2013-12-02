@@ -30,7 +30,7 @@ Then modify your settings.py, adding the package `simple_audit` in INSTALLED_APP
 
 
 Usage
-===============
+======
 
 Tracking changes on a model
 ----------------------------
@@ -89,7 +89,12 @@ specify it:
 	finally:
 	    AuditRequest.cleanup_request()
 
+Tracking m2m fields changes
+----------------------------
 
+Tracking m2m fields changes is still experimental, but you can enable it with the following variable:
+
+    DJANGO_SIMPLE_AUDIT_M2M_FIELDS = True
 
 Dependencies
 ============
@@ -101,4 +106,9 @@ Dependencies
 TODO
 ====
 * Improve tests
-* Audit changes in ManyToMany fields
+
+CHANGELOG
+=========
+* 0.1.12
+    * Created some simple tests
+    * Enable many to many fiedls tracking (see Usage)
