@@ -5,30 +5,35 @@ import threading
 import copy
 from django.db import models
 from .models import Audit, AuditChange
+from . import settings
 from django.utils.translation import ugettext_lazy as _
 
 THREAD_LOCAL = threading.local()
 MODEL_LIST = set()
 LOG = logging.getLogger(__name__)
 
+
 def ValuesQuerySetToDict(vqs):
+    """converts a ValuesQuerySet to Dict"""
     return [item for item in vqs]
 
+
 def get_m2m_fields_for(instance=None):
+    """gets m2mfields for instance"""
     return instance._meta._many_to_many()
+
 
 def get_m2m_values_for(instance=None):
     values = {}
     for m2m_field in get_m2m_fields_for(instance=instance):
-        #values[m2m_field] = (m2m_field._get_val_from_obj(instance).all())
-        #values[m2m_field.verbose_name] = (m2m_field._get_val_from_obj(instance).values())
         values[m2m_field.verbose_name] = ValuesQuerySetToDict(m2m_field._get_val_from_obj(instance).values())
         
     return copy.deepcopy(values)
 
+
 def audit_m2m_change(sender, **kwargs):
     """
-    TODO: audit m2m changes
+    audit m2m changes if the settings DJANGO_SIMPLE_AUDIT_M2M_FIELDS is set to True
     """
     if kwargs.get('action'):
         action = kwargs.get('action')
@@ -38,7 +43,7 @@ def audit_m2m_change(sender, **kwargs):
         elif kwargs['action'] == "post_add":
             if not hasattr(THREAD_LOCAL, 'm2m_values'):
                 THREAD_LOCAL.m2m_values = {"before_save" : {}, "after_save": {}}
-                
+
             THREAD_LOCAL.m2m_values["after_save"] = get_m2m_values_for(instance=instance)
             THREAD_LOCAL.m2m_values["m2m_change"] = True
             save_audit(kwargs['instance'], Audit.CHANGE, kwargs=THREAD_LOCAL.m2m_values)
@@ -60,10 +65,11 @@ def audit_post_save(sender, **kwargs):
 
 def audit_pre_save(sender, **kwargs):
     instance=kwargs.get('instance')
-    if kwargs['instance'].pk:
-        if get_m2m_fields_for(instance): #has m2m fields?
-            THREAD_LOCAL.m2m_values = {"before_save" : {}, "after_save": {}}
-            THREAD_LOCAL.m2m_values["before_save"] = get_m2m_values_for(instance=instance)
+    if instance.pk:
+        if settings.DJANGO_SIMPLE_AUDIT_M2M_FIELDS:
+            if get_m2m_fields_for(instance): #has m2m fields?
+                THREAD_LOCAL.m2m_values = {"before_save" : {}, "after_save": {}}
+                THREAD_LOCAL.m2m_values["before_save"] = get_m2m_values_for(instance=instance)
         save_audit(kwargs['instance'], Audit.CHANGE)
 
 
@@ -81,20 +87,16 @@ def register(*my_models):
             models.signals.pre_delete.connect(audit_pre_delete, sender=model)
 
             # signals for m2m fields
-            m2ms = model._meta.get_m2m_with_model()
-            if m2ms:
-                for m2m in m2ms:
-                    try:
-                        sender_m2m = getattr(model, m2m[0].name).through
-                        models.signals.m2m_changed.connect(audit_m2m_change, sender=sender_m2m)
-                    except Exception, e:
-                        LOG.warning("could not create signal for m2m field: %s" % e)
+            if settings.DJANGO_SIMPLE_AUDIT_M2M_FIELDS:
+                m2ms = model._meta.get_m2m_with_model()
+                if m2ms:
+                    for m2m in m2ms:
+                        try:
+                            sender_m2m = getattr(model, m2m[0].name).through
+                            models.signals.m2m_changed.connect(audit_m2m_change, sender=sender_m2m)
+                        except Exception, e:
+                            LOG.warning("could not create signal for m2m field: %s" % e)
 
-
-def register_m2m(*my_models):
-    for model in my_models:
-        if model is not None:
-            models.signals.m2m_changed.connect(audit_m2m_change, sender=model)
 
 NOT_ASSIGNED = object()
 
@@ -178,11 +180,10 @@ def save_audit(instance, operation, kwargs={}):
                 if not m2m_change:
                     old_state = to_dict(instance.__class__.objects.get(pk=instance.pk))
                 else:
-                    #TODO: m2m change
-                    print("m2m change detected")
+                    #m2m change
+                    LOG.debug("m2m change detected")
                     new_state = kwargs.get("after_save", {})
                     old_state = kwargs.get("before_save", {})
-                    #old_state = to_dict(instance.__class__.objects.get(pk=instance.pk))
         except:
             pass
 
