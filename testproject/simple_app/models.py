@@ -6,14 +6,14 @@ import simple_audit
 
 class Topping(models.Model):
 
-    name = models.CharField(max_length=50, blank=False)
+    name = models.CharField(max_length=50, blank=False, unique=True)
 
     def __unicode__(self):
         return self.name
 
 class Pizza(models.Model):
 
-    name = models.CharField(max_length=50, blank=False)
+    name = models.CharField(max_length=50, blank=False, unique=True)
     toppings = models.ManyToManyField(Topping)
 
 
