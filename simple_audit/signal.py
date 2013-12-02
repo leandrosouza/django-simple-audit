@@ -33,19 +33,17 @@ def audit_m2m_change(sender, **kwargs):
     if kwargs.get('action'):
         action = kwargs.get('action')
         instance = kwargs.get('instance')
-        print "audit m2m_change > %s | %s" % (action, kwargs)
-        print "*" * 30
-        kwargs['m2m_change'] = True
         if kwargs['action'] == "pre_add":
             pass
         elif kwargs['action'] == "post_add":
-            if not THREAD_LOCAL.m2m_values_before_save:
-                THREAD_LOCAL.m2m_values_before_save = None
-            print "\t ANTES: %s" % THREAD_LOCAL.m2m_values_before_save
-            THREAD_LOCAL.m2m_values_after_save = get_m2m_values_for(instance=instance)
-            print "\t DEPOIS: %s" % THREAD_LOCAL.m2m_values_after_save
-            # print "\t%s" % get_m2m_values_for(instance=instance)
-            #save_audit(kwargs['instance'], Audit.CHANGE, kwargs=kwargs)
+            if not hasattr(THREAD_LOCAL, 'm2m_values'):
+                THREAD_LOCAL.m2m_values = {"before_save" : {}, "after_save": {}}
+                
+            THREAD_LOCAL.m2m_values["after_save"] = get_m2m_values_for(instance=instance)
+            print "\t %s" % THREAD_LOCAL.m2m_values
+            THREAD_LOCAL.m2m_values["m2m_change"] = True
+            save_audit(kwargs['instance'], Audit.CHANGE, kwargs=THREAD_LOCAL.m2m_values)
+            del THREAD_LOCAL.m2m_values
             # pass
         elif kwargs['action'] == "pre_remove":
             pass
@@ -58,8 +56,6 @@ def audit_m2m_change(sender, **kwargs):
 
 
 def audit_post_save(sender, **kwargs):
-    print ">>> audit_post_save: %s" % kwargs
-    print "*" * 30
     if kwargs['created']:
         save_audit(kwargs['instance'], Audit.ADD)
 
@@ -68,12 +64,8 @@ def audit_pre_save(sender, **kwargs):
     instance=kwargs.get('instance')
     if kwargs['instance'].pk:
         if get_m2m_fields_for(instance): #has m2m fields?
-            print ">>> audit_pre_save: %s" % kwargs
-            new_dict_deepcopy = get_m2m_values_for(instance=instance)
-            THREAD_LOCAL.m2m_values_before_save = new_dict_deepcopy
-            print "\t%s" % THREAD_LOCAL.m2m_values_before_save
-            # print "\t%s" % get_m2m_values_for(instance=instance)
-            print "*" * 30
+            THREAD_LOCAL.m2m_values = {"before_save" : {}, "after_save": {}}
+            THREAD_LOCAL.m2m_values["before_save"] = get_m2m_values_for(instance=instance)
         save_audit(kwargs['instance'], Audit.CHANGE)
 
 
@@ -189,12 +181,15 @@ def save_audit(instance, operation, kwargs={}):
                     old_state = to_dict(instance.__class__.objects.get(pk=instance.pk))
                 else:
                     #TODO: m2m change
-                    old_state = to_dict(instance.__class__.objects.get(pk=instance.pk))
+                    print("m2m change detected")
+                    new_state = kwargs.get("after_save", {})
+                    old_state = kwargs.get("before_save", {})
+                    #old_state = to_dict(instance.__class__.objects.get(pk=instance.pk))
         except:
             pass
 
         changed_fields = dict_diff(old_state, new_state)
-
+        print "changed_fields: %s" % changed_fields
         if operation == Audit.CHANGE:
             #is there any change?
             if not changed_fields:
