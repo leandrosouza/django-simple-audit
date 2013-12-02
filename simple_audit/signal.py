@@ -1,13 +1,18 @@
 # -*- coding:utf-8 -*-
 import logging
+import re
+import threading
+import copy
 from django.db import models
 from .models import Audit, AuditChange
 from django.utils.translation import ugettext_lazy as _
-import re
 
-
+THREAD_LOCAL = threading.local()
 MODEL_LIST = set()
 LOG = logging.getLogger(__name__)
+
+def ValuesQuerySetToDict(vqs):
+    return [item for item in vqs]
 
 def get_m2m_fields_for(instance=None):
     return instance._meta._many_to_many()
@@ -15,8 +20,11 @@ def get_m2m_fields_for(instance=None):
 def get_m2m_values_for(instance=None):
     values = {}
     for m2m_field in get_m2m_fields_for(instance=instance):
-        values[m2m_field] = (m2m_field._get_val_from_obj(instance).all())
-    return values
+        #values[m2m_field] = (m2m_field._get_val_from_obj(instance).all())
+        #values[m2m_field.verbose_name] = (m2m_field._get_val_from_obj(instance).values())
+        values[m2m_field.verbose_name] = ValuesQuerySetToDict(m2m_field._get_val_from_obj(instance).values())
+        
+    return copy.deepcopy(values)
 
 def audit_m2m_change(sender, **kwargs):
     """
@@ -31,7 +39,12 @@ def audit_m2m_change(sender, **kwargs):
         if kwargs['action'] == "pre_add":
             pass
         elif kwargs['action'] == "post_add":
-            print "\t%s" % get_m2m_values_for(instance=instance)
+            if not THREAD_LOCAL.m2m_values_before_save:
+                THREAD_LOCAL.m2m_values_before_save = None
+            print "\t ANTES: %s" % THREAD_LOCAL.m2m_values_before_save
+            THREAD_LOCAL.m2m_values_after_save = get_m2m_values_for(instance=instance)
+            print "\t DEPOIS: %s" % THREAD_LOCAL.m2m_values_after_save
+            # print "\t%s" % get_m2m_values_for(instance=instance)
             #save_audit(kwargs['instance'], Audit.CHANGE, kwargs=kwargs)
             # pass
         elif kwargs['action'] == "pre_remove":
@@ -53,10 +66,14 @@ def audit_post_save(sender, **kwargs):
 
 def audit_pre_save(sender, **kwargs):
     instance=kwargs.get('instance')
-    print ">>> audit_pre_save: %s" % kwargs
-    print "\t%s" % get_m2m_values_for(instance=instance)
-    print "*" * 30
     if kwargs['instance'].pk:
+        if get_m2m_fields_for(instance): #has m2m fields?
+            print ">>> audit_pre_save: %s" % kwargs
+            new_dict_deepcopy = get_m2m_values_for(instance=instance)
+            THREAD_LOCAL.m2m_values_before_save = new_dict_deepcopy
+            print "\t%s" % THREAD_LOCAL.m2m_values_before_save
+            # print "\t%s" % get_m2m_values_for(instance=instance)
+            print "*" * 30
         save_audit(kwargs['instance'], Audit.CHANGE)
 
 
