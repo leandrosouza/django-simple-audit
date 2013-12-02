@@ -118,7 +118,25 @@ def to_dict(obj):
 
 
 def dict_diff(old, new):
+    """
+    example dict returned
 
+    {'date_joined': (None, datetime.datetime(2013, 12, 2, 17, 18, 4, 740905)),
+     'email': (None, u'admin@admin.com'),
+     'first_name': (None, u''),
+     'groups': (None, []),
+     u'id': (None, 1),
+     'is_active': (None, True),
+     'is_staff': (None, False),
+     'is_superuser': (None, False),
+     'last_login': (None, datetime.datetime(2013, 12, 2, 17, 18, 4, 740905)),
+     'last_name': (None, u''),
+     'password': (u'xxxxxxxx',
+                  u'*****************************************************************************'),
+     'user_permissions': (None, []),
+     'username': (None, 'admin')}
+
+    """
     keys = set(old.keys() + new.keys())
     diff = {}
     for key in keys:
@@ -133,7 +151,7 @@ def dict_diff(old, new):
                 pass
             diff[key] = (old_value, new_value)
     
-    LOG.debug("dict_diff: %s" % diff)
+    LOG.debug("dict_diff: %s" % pprint(diff))
     return diff
 
 
