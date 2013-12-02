@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+from __future__ import absolute_import, unicode_literals
 import logging
 import re
 import threading
@@ -141,9 +142,12 @@ def dict_diff(old, new):
         old_value = old.get(key, None)
         new_value = new.get(key, None)
         if old_value != new_value:
-            if re.match(key, 'password'):
-                old_value = 'xxxxxxxx'
-                new_value = "*" * len(new.get(key))
+            try:
+                if re.match(key, 'password'):
+                    old_value = 'xxxxxxxx'
+                    new_value = "*" * len(new.get(key))
+            except:
+                pass
             diff[key] = (old_value, new_value)
 
     return diff
