@@ -176,3 +176,5 @@ LOGGING = {
         'handlers': ['console']
     }
 }
+
+DJANGO_SIMPLE_AUDIT_M2M_FIELDS = True
