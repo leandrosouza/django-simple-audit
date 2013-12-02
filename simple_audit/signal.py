@@ -3,7 +3,8 @@ from __future__ import absolute_import, unicode_literals
 import logging
 import re
 import threading
-import copy
+from pprint import pprint
+from . import m2m_audit
 from django.db import models
 from .models import Audit, AuditChange
 from . import settings
@@ -12,24 +13,6 @@ from django.utils.translation import ugettext_lazy as _
 THREAD_LOCAL = threading.local()
 MODEL_LIST = set()
 LOG = logging.getLogger(__name__)
-
-
-def ValuesQuerySetToDict(vqs):
-    """converts a ValuesQuerySet to Dict"""
-    return [item for item in vqs]
-
-
-def get_m2m_fields_for(instance=None):
-    """gets m2mfields for instance"""
-    return instance._meta._many_to_many()
-
-
-def get_m2m_values_for(instance=None):
-    values = {}
-    for m2m_field in get_m2m_fields_for(instance=instance):
-        values[m2m_field.verbose_name] = ValuesQuerySetToDict(m2m_field._get_val_from_obj(instance).values())
-        
-    return copy.deepcopy(values)
 
 
 def audit_m2m_change(sender, **kwargs):
@@ -45,7 +28,7 @@ def audit_m2m_change(sender, **kwargs):
             if not hasattr(THREAD_LOCAL, 'm2m_values'):
                 THREAD_LOCAL.m2m_values = {"before_save" : {}, "after_save": {}}
 
-            THREAD_LOCAL.m2m_values["after_save"] = get_m2m_values_for(instance=instance)
+            THREAD_LOCAL.m2m_values["after_save"] = m2m_audit.get_m2m_values_for(instance=instance)
             THREAD_LOCAL.m2m_values["m2m_change"] = True
             save_audit(kwargs['instance'], Audit.CHANGE, kwargs=THREAD_LOCAL.m2m_values)
             del THREAD_LOCAL.m2m_values
@@ -68,9 +51,9 @@ def audit_pre_save(sender, **kwargs):
     instance=kwargs.get('instance')
     if instance.pk:
         if settings.DJANGO_SIMPLE_AUDIT_M2M_FIELDS:
-            if get_m2m_fields_for(instance): #has m2m fields?
+            if m2m_audit.get_m2m_fields_for(instance): #has m2m fields?
                 THREAD_LOCAL.m2m_values = {"before_save" : {}, "after_save": {}}
-                THREAD_LOCAL.m2m_values["before_save"] = get_m2m_values_for(instance=instance)
+                THREAD_LOCAL.m2m_values["before_save"] = m2m_audit.get_m2m_values_for(instance=instance)
         save_audit(kwargs['instance'], Audit.CHANGE)
 
 
@@ -149,7 +132,8 @@ def dict_diff(old, new):
             except:
                 pass
             diff[key] = (old_value, new_value)
-
+    
+    LOG.debug("dict_diff: %s" % diff)
     return diff
 
 
