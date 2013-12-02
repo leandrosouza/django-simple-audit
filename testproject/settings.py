@@ -171,9 +171,13 @@ LOGGING = {
         'django.db.backends': {
             'level': 'WARN'
         },
+        'simple_audit.signal': {
+            'level': 'DEBUG'
+        },
     },
     'root': {
-        'handlers': ['console']
+        'handlers': ['console'],
+        'level': 'DEBUG',
     }
 }
 
