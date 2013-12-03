@@ -119,10 +119,9 @@ def m2m_dict_diff(old, new):
     if swap:
         for dif in diff:
             for key in dif.keys():
-                el_0 = dif[key][1]
-                el_1 = dif[key][0]
-                dif[key][0] = el_0
-                dif[key][1] = el_1
+                #swap elements
+                dif[key][0], dif[key][1] = dif[key][1], dif[key][0]
+
     if diff:
         LOG.debug("m2m diff cleaned: %s" % pprint(diff))
     return diff
