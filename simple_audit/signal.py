@@ -30,7 +30,7 @@ def audit_m2m_change(sender, **kwargs):
 
             THREAD_LOCAL.m2m_values["after_save"] = m2m_audit.get_m2m_values_for(instance=instance)
             THREAD_LOCAL.m2m_values["m2m_change"] = True
-            save_audit(kwargs['instance'], Audit.CHANGE, kwargs=THREAD_LOCAL.m2m_values)
+            save_audit(instance, Audit.CHANGE, kwargs=THREAD_LOCAL.m2m_values)
             del THREAD_LOCAL.m2m_values
         elif kwargs['action'] == "pre_remove":
             pass
@@ -65,7 +65,8 @@ def register(*my_models):
     global MODEL_LIST
     for model in my_models:
         if model is not None:
-            MODEL_LIST.add(model)
+            if model not in MODEL_LIST:
+                MODEL_LIST.add(model)
             models.signals.pre_save.connect(audit_pre_save, sender=model)
             models.signals.post_save.connect(audit_post_save, sender=model)
             models.signals.pre_delete.connect(audit_pre_delete, sender=model)
@@ -133,7 +134,8 @@ def dict_diff(old, new):
                 pass
             diff[key] = (old_value, new_value)
     
-    LOG.debug("dict_diff: %s" % diff)
+    if diff:
+        LOG.debug("dict_diff: %s" % diff)
     return diff
 
 
@@ -174,22 +176,41 @@ def save_audit(instance, operation, kwargs={}):
                     old_state = kwargs.get("before_save", {})
         except:
             pass
-
-        changed_fields = dict_diff(old_state, new_state)
+            
+        if m2m_change:
+            #m2m_change returns a list of changes
+            changed_fields = m2m_audit.m2m_dict_diff(old_state, new_state)
+        else:
+            changed_fields = dict_diff(old_state, new_state)
 
         if operation == Audit.CHANGE:
             #is there any change?
             if not changed_fields:
                 persist_audit = False
-            description = u"\n".join([u"%s %s: %s %s %s %s" %
-                (
-                    _("field"),
-                    k,
-                    _("was changed from"),
-                    format_value(v[0]),
-                    _("to"),
-                    format_value(v[1]),
-                ) for k, v in changed_fields.items()])
+            
+            if m2m_change:
+                descriptions = []
+                for changed_field in changed_fields:
+                    description = u"\n".join([u"%s %s: %s %s %s %s" %
+                        (
+                            _("field"),
+                            k,
+                            _("was changed from"),
+                            format_value(v[0]),
+                            _("to"),
+                            format_value(v[1]),
+                        ) for k, v in changed_field.items()])
+                    descriptions.append(description)
+            else:
+                description = u"\n".join([u"%s %s: %s %s %s %s" %
+                    (
+                        _("field"),
+                        k,
+                        _("was changed from"),
+                        format_value(v[0]),
+                        _("to"),
+                        format_value(v[1]),
+                    ) for k, v in changed_fields.items()])
         elif operation == Audit.DELETE:
             description = _('Deleted %s') % unicode(instance)
         elif operation == Audit.ADD:
@@ -197,15 +218,28 @@ def save_audit(instance, operation, kwargs={}):
 
         LOG.debug("called audit with operation=%s instance=%s persist=%s" % (operation, instance, persist_audit))
         if persist_audit:
-            audit = Audit.register(instance, description, operation)
+            if m2m_change:
+                for description in descriptions:
+                    audit = Audit.register(instance, description, operation)
+                    changed_field = changed_fields.pop(0)
+                    
+                    for field, (old_value, new_value) in changed_field.items():
+                        change = AuditChange()
+                        change.audit = audit
+                        change.field = field
+                        change.new_value = new_value
+                        change.old_value = old_value
+                        change.save()
+            else:
+                audit = Audit.register(instance, description, operation)
 
-            for field, (old_value, new_value) in changed_fields.items():
-                change = AuditChange()
-                change.audit = audit
-                change.field = field
-                change.new_value = new_value
-                change.old_value = old_value
-                change.save()
+                for field, (old_value, new_value) in changed_fields.items():
+                    change = AuditChange()
+                    change.audit = audit
+                    change.field = field
+                    change.new_value = new_value
+                    change.old_value = old_value
+                    change.save()
     except:
         LOG.error(u'Error registering auditing to %s: (%s) %s',
             repr(instance), type(instance), getattr(instance, '__dict__', None), exc_info=True)
