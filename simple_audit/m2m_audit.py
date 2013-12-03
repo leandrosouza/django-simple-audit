@@ -47,16 +47,11 @@ def m2m_clean_unchanged_fields(dict_diff):
             else:
                 new_dict[compound_key] = dict_[value]
         
-        
-        #clean empty dicts
-        # if not dict_diff.get(key):
         del dict_diff[key]
         if new_dict:
             dict_list.append(new_dict)
 
     return dict_list
-    # return dict_diff
-
 
 def m2m_dict_diff(old, new):
     # print("m2m old: %s" % (old))
