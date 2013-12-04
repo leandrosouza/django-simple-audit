@@ -5,7 +5,7 @@ STATUS_PROD = 'Development Status :: 5 - Production/Stable'
 STATUS_BETA = 'Development Status :: 4 - Beta'
 STATUS_ALPHA = 'Development Status :: 3 - Alpha'
 
-version = '0.1.13b'
+version = '0.1.13c'
 README = os.path.join(os.path.dirname(__file__), 'README.rst')
 long_description = open(README).read()
 setup(
