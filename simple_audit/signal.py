@@ -37,7 +37,6 @@ def audit_m2m_change(sender, **kwargs):
             dict_["new_state"] = m2m_audit.get_m2m_values_for(instance=instance)
             dict_["m2m_change"] = True
             cache.set(cache_key, dict_, DEFAULT_CACHE_TIMEOUT)
-            print "\t >>>>> %s" % pprint(dict_)
             save_audit(instance, Audit.CHANGE, kwargs=dict_)
         elif kwargs['action'] == "pre_remove":
             pass
@@ -64,8 +63,6 @@ def audit_pre_save(sender, **kwargs):
                 dict_["old_state"] = m2m_audit.get_m2m_values_for(instance=instance)
                 cache.set(cache_key, dict_, DEFAULT_CACHE_TIMEOUT)
                 LOG.debug("old_state saved in cache with key %s for m2m auditing" % cache_key)
-                print "old_state: %s" % pprint(dict_)
-                print "*" * 50
         save_audit(kwargs['instance'], Audit.CHANGE)
 
 
