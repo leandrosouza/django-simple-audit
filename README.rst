@@ -96,6 +96,16 @@ Tracking m2m fields changes is still experimental, but you can enable it with th
 
     DJANGO_SIMPLE_AUDIT_M2M_FIELDS = True
 
+You need to have at least one cache backend set in your django settings, otherwise the previous settings will be set to False.
+
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique',
+            'TIMEOUT': 300,
+        }
+    }
+
 Dependencies
 ============
 

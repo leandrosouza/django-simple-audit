@@ -30,7 +30,54 @@ def normalize_dict(d):
             d[k] = 'xxxxx'
             
     return d
-    
+
+
+def m2m_proccess_diff_states(old, new):
+    """
+    old and new are dictionaries in the following format
+
+    old:
+    {u'toppings.1': {u'id': [1, None], 'name': [u'ceboloa', None]},
+     u'toppings.11': {u'id': [11, None], 'name': [u'abacate', None]},
+     u'toppings.5': {u'id': [5, None], 'name': [u'cogumelo', None]},
+     u'toppings.6': {u'id': [6, None], 'name': [u'abobrinha', None]},
+     u'toppings.8': {u'id': [8, None], 'name': [u'codorna', None]},
+     u'toppings.9': {u'id': [9, None], 'name': [u'banana', None]}}
+
+    new:
+    {u'toppings.1': {u'id': [None, 1], 'name': [None, u'ceboloa']},
+     u'toppings.10': {u'id': [None, 10], 'name': [None, u'abacaxi']},
+     u'toppings.5': {u'id': [None, 5], 'name': [None, u'cogumelo']},
+     u'toppings.6': {u'id': [None, 6], 'name': [None, u'abobrinha']},
+     u'toppings.8': {u'id': [None, 8], 'name': [None, u'codorna']},
+     u'toppings.9': {u'id': [None, 9], 'name': [None, u'banana']}}
+    """
+    # print "old..."
+    # pprint(old)
+    # print "^^^"
+    # print "new..."
+    # pprint(new)
+    # print "^^^"
+
+    diff = copy.deepcopy(old)
+    new_copy = copy.deepcopy(new)
+    for field_id in old.keys():
+        old_ = old[field_id]
+        if field_id in new_copy:
+            for k in old_.keys():
+                try:
+                    diff[field_id][k][1] = new_copy[field_id][k][1]
+                except:
+                    pass
+            del new_copy[field_id]
+
+    #add remaining items in new_copy to diff
+    for field_id in new_copy.keys():
+        new_ = new_copy[field_id]
+        diff[field_id] = new_
+
+    return diff
+
 def m2m_clean_unchanged_fields(dict_diff):
     """
     returns a list of dicts with only the changes
@@ -54,12 +101,7 @@ def m2m_clean_unchanged_fields(dict_diff):
     return dict_list
 
 def m2m_dict_diff(old, new):
-    # print("m2m old: %s" % (old))
-    # print("m2m new: %s" % (new))
 
-    diff = {}
-    field_name = None
-    
     #old is empty?
     swap = False
     if not old:
@@ -67,63 +109,57 @@ def m2m_dict_diff(old, new):
         old = new
         new = {}
         swap = True
-    
+
     #first create empty diff based in old state
+    field_name = None
+    diff_old = {}
+    diff_new = {}
     for key in old.keys():
         if not field_name:
             field_name = key
         else:
             if field_name != key:
                 LOG.warning("ops... field_name name change detected")
-        #oldstate
+        ###########
+        # oldstate
+        ##########
         id_=0
         for item in old[key]:
             empty_dict={}
             for key_ in item.keys():
-                # print "key: %s" % key_
                 if key_ == "id":
                     id_=item[key_]
-                empty_dict[key_] = [item[key_], None]
+                #when old is empty, the dicts are swapped
+                if swap:
+                    empty_dict[key_] = [None, item[key_]]
+                else:
+                    empty_dict[key_] = [item[key_], None]
 
-            diff["%s.%s" % (field_name, id_)] = empty_dict
+            diff_old["%s.%s" % (field_name, id_)] = empty_dict
 
-        #new state
-        #discover id
-        empty_dict={}
-        id=0
-
-        for item in new.get(key, []):
+        ############
+        # new state
+        ############
+        id_=0
+        for item in new.get(key, {}):
+            empty_dict={}
             for key_ in item.keys():
                 if key_ == "id":
-                    id=item[key_]
-                    break
-            break
+                    id_=item[key_]
+                empty_dict[key_] = [None, item[key_]]
 
-        #check if the id exists in old state
-        key_name = "%s.%s" % (field_name, id)
-        id_exists = key_name in diff
+            diff_new["%s.%s" % (field_name, id_)] = empty_dict
 
-        for item in new.get(key, []):
-            for key_ in item.keys():
-                if id_exists:
-                    diff[key_name][key_][1] = item[key_]
-                else:
-                    empty_dict[key_] = [None, item[key_]]
-
-
-            if not id_exists:
-                diff["%s.%s" % (field_name, id)] = empty_dict
-
-    #clean unchanged fields
-    diff = m2m_clean_unchanged_fields(diff)
     if swap:
-        for dif in diff:
-            for key in dif.keys():
-                #swap elements
-                dif[key][0], dif[key][1] = dif[key][1], dif[key][0]
+        diff_old, diff_new = diff_new, diff_old
+
+    diff = m2m_proccess_diff_states(diff_old, diff_new)
+
+    diff = m2m_clean_unchanged_fields(diff)
 
     if diff:
         LOG.debug("m2m diff cleaned: %s" % pprint(diff))
+
     return diff
 
 def persist_m2m_audit():

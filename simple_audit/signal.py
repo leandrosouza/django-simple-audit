@@ -9,11 +9,15 @@ from django.db import models
 from .models import Audit, AuditChange
 from . import settings
 from django.utils.translation import ugettext_lazy as _
+from django.core.cache import cache
 
-THREAD_LOCAL = threading.local()
 MODEL_LIST = set()
 LOG = logging.getLogger(__name__)
+DEFAULT_CACHE_TIMEOUT = 120
 
+def get_cache_key_for_instance(instance, cache_prefix="django_simple_audit"):
+    
+    return "%s:%s:%s" % (cache_prefix, instance.__class__.__name__, instance.pk)
 
 def audit_m2m_change(sender, **kwargs):
     """
@@ -25,13 +29,16 @@ def audit_m2m_change(sender, **kwargs):
         if kwargs['action'] == "pre_add":
             pass
         elif kwargs['action'] == "post_add":
-            if not hasattr(THREAD_LOCAL, 'm2m_values'):
-                THREAD_LOCAL.m2m_values = {"before_save" : {}, "after_save": {}}
+            cache_key = get_cache_key_for_instance(instance)
+            dict_ = cache.get(cache_key)
+            if not dict_:
+                dict_ = {"old_state" : {}, "new_state": {}}
 
-            THREAD_LOCAL.m2m_values["after_save"] = m2m_audit.get_m2m_values_for(instance=instance)
-            THREAD_LOCAL.m2m_values["m2m_change"] = True
-            save_audit(instance, Audit.CHANGE, kwargs=THREAD_LOCAL.m2m_values)
-            del THREAD_LOCAL.m2m_values
+            dict_["new_state"] = m2m_audit.get_m2m_values_for(instance=instance)
+            dict_["m2m_change"] = True
+            cache.set(cache_key, dict_, DEFAULT_CACHE_TIMEOUT)
+            print "\t >>>>> %s" % pprint(dict_)
+            save_audit(instance, Audit.CHANGE, kwargs=dict_)
         elif kwargs['action'] == "pre_remove":
             pass
         elif kwargs['action'] == "post_remove":
@@ -52,8 +59,13 @@ def audit_pre_save(sender, **kwargs):
     if instance.pk:
         if settings.DJANGO_SIMPLE_AUDIT_M2M_FIELDS:
             if m2m_audit.get_m2m_fields_for(instance): #has m2m fields?
-                THREAD_LOCAL.m2m_values = {"before_save" : {}, "after_save": {}}
-                THREAD_LOCAL.m2m_values["before_save"] = m2m_audit.get_m2m_values_for(instance=instance)
+                cache_key = get_cache_key_for_instance(instance)
+                dict_ = {"old_state" : {}, "new_state": {}}
+                dict_["old_state"] = m2m_audit.get_m2m_values_for(instance=instance)
+                cache.set(cache_key, dict_, DEFAULT_CACHE_TIMEOUT)
+                LOG.debug("old_state saved in cache with key %s for m2m auditing" % cache_key)
+                print "old_state: %s" % pprint(dict_)
+                print "*" * 50
         save_audit(kwargs['instance'], Audit.CHANGE)
 
 
@@ -172,8 +184,8 @@ def save_audit(instance, operation, kwargs={}):
                 else:
                     #m2m change
                     LOG.debug("m2m change detected")
-                    new_state = kwargs.get("after_save", {})
-                    old_state = kwargs.get("before_save", {})
+                    new_state = kwargs.get("new_state", {})
+                    old_state = kwargs.get("old_state", {})
         except:
             pass
             
