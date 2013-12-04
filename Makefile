@@ -37,4 +37,4 @@ upload: clean
 	@python setup.py sdist upload -r pypi
 
 publish: upload
-    @bash make_tag.sh
+	@bash make_tag.sh
