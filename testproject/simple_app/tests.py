@@ -71,11 +71,15 @@ class SimpleTest(TestCase):
                                             description="Added peperoni"))
 
         #m2m audit recorded?
-        # field toppings: was changed from None to [{u'id': 2, 'name': u'ovo'}]
+        #u"field toppings.1.id: was changed from None to 1\nfield toppings.1.name: was changed from None to 'calabresa'"
+        desc = "field toppings.%s.id: was changed from None to %s\nfield toppings.%s.name: was changed from None to '%s'" % (self.topping_onion.id,
+         self.topping_onion.id,
+         self.topping_onion.id,
+         self.topping_onion.name)
         self.assertTrue(Audit.objects.get(operation=1, 
                             content_type=self.content_type_pizza,
                             object_id=pizza.pk,
-                            description="field toppings: was changed from None to [{u'id': %s, 'name': u'%s'}]" % (self.topping_onion.id, self.topping_onion.name)))
+                            description=desc))
 
     # @override_settings(DJANGO_SIMPLE_AUDIT_M2M_FIELDS=False)
     # def test_add_pizza_with_toppings_with_audit_disabled(self):
