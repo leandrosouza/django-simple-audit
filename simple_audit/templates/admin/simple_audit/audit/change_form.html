@@ -6,7 +6,7 @@
 <div id="content-main">
 	<div>
 		<!-- Object information -->
-		<fieldset class="module aligned ">
+		<fieldset class="module aligned hero-unit">
 			<h2>{% trans "Object info" %}</h2>
 			<div class="form-row">
 				<div>
@@ -23,13 +23,13 @@
 			<div class="form-row">
 				<div>
 					<label>{% trans "Description" %}:</label>
-					<p><div>{{ original.description|linebreaksbr }}</p>
+					<p><div>{{ original.description|linebreaksbr }}</div></p>
 				</div>
 			</div>
 		</fieldset>
 		
 		<!-- Info about request -->
-		<fieldset class="module aligned ">
+		<fieldset class="module aligned hero-unit">
 			<h2>{% trans "Request info" %}</h2>
 			<div class="form-row">
 				<div>
@@ -64,10 +64,10 @@
 		</fieldset>
 		
 		<!-- Fields -->
-		<fieldset class="module aligned ">
+		<fieldset class="module aligned hero-unit">
 			<h2>{% trans "Fields were changed" %}</h2>
 			<div class="form-row">
-				<table width="400">
+				<table class="table table-striped" width="400">
 					<tr>
 						<th align="left">{% trans "Field" %}</th>
 						<th align="left">{% trans "Old value" %}</th>

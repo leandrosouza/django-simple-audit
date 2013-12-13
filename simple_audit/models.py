@@ -100,7 +100,7 @@ class AuditRequest(models.Model):
     def new_request(path, user, ip):
         """
         Create a new request from a path, user and ip and put it on thread context.
-        The new request not be saved until first use or calling method current_request(True)
+        The new request should not be saved until first use or calling method current_request(True)
         """
         audit_request = AuditRequest()
         audit_request.ip = ip
