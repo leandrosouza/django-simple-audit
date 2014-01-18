@@ -28,11 +28,11 @@ class SimpleTest(TestCase):
     def test_add_topping_and_search_audit(self):
         """tests add a topping"""
         topping = Topping.objects.get_or_create(name="potato")[0]
-        
+
         #topping created
         self.assertTrue(topping.pk)
         #audit recorded?
-        self.assertTrue(Audit.objects.get(operation=0, 
+        self.assertTrue(Audit.objects.get(operation=0,
                                             content_type=self.content_type_topping,
                                             object_id=topping.pk,
                                             description="Added potato"))
@@ -46,7 +46,7 @@ class SimpleTest(TestCase):
         #toppings added?
         self.assertEqual(pizza.toppings.all().count(), 0)
         #audit recorded?
-        self.assertTrue(Audit.objects.get(operation=0, 
+        self.assertTrue(Audit.objects.get(operation=0,
                                             content_type=self.content_type_pizza,
                                             object_id=pizza.pk,
                                             description="Added mussarela"))
@@ -68,7 +68,7 @@ class SimpleTest(TestCase):
         self.assertEqual(pizza.toppings.all().count(), 1)
 
         #audit recorded?
-        self.assertTrue(Audit.objects.get(operation=0, 
+        self.assertTrue(Audit.objects.get(operation=0,
                                             content_type=self.content_type_pizza,
                                             object_id=pizza.pk,
                                             description="Added peperoni"))
@@ -80,7 +80,7 @@ class SimpleTest(TestCase):
          self.topping_onion.id,
          self.topping_onion.name)
 
-        self.assertTrue(Audit.objects.get(operation=1, 
+        self.assertTrue(Audit.objects.get(operation=1,
                             content_type=self.content_type_pizza,
                             object_id=pizza.pk,
                             description=desc))
@@ -189,9 +189,50 @@ class SimpleTest(TestCase):
                                     {u'id': 9, 'name': u'banana'},
                                     {u'id': 10, 'name': u'abacaxi'},
                                     ]}
-                   
+
         expected_response = []
-        
+
         diff = m2m_audit.m2m_dict_diff(old_state, new_state)
-        
+
+        self.assertEqual(diff, expected_response)
+
+    def test_m2m_dict_multiple_field_diff(self):
+        """
+        test where old state and new state contains multiple fields,
+        with one field having a changed value
+        """
+
+        new_state = {
+          u'foo': [
+            {u'id': 1, 'name': u'bar'
+            }
+          ],
+          u'toppings': [
+              {u'id': 1, 'name': u'ceboloa'},
+              {u'id': 5, 'name': u'cogumelo'},
+              {u'id': 6, 'name': u'abobrinha'},
+              {u'id': 8, 'name': u'codorna'},
+              {u'id': 9, 'name': u'banana'},
+              {u'id': 10, 'name': u'abcdef'},
+            ]
+        }
+
+        old_state = {
+          u'foo': [
+            {u'id': 1, 'name': u'bar'
+            }
+          ],
+          u'toppings': [
+            {u'id': 1, 'name': u'ceboloa'},
+            {u'id': 5, 'name': u'cogumelo'},
+            {u'id': 6, 'name': u'abobrinha'},
+            {u'id': 8, 'name': u'codorna'},
+            {u'id': 9, 'name': u'banana'},
+            {u'id': 10, 'name': u'abcdesccc'},
+          ]
+        }
+
+        expected_response = [{u'toppings.10.name': [u'abcdesccc', u'abcdef']}]
+
+        diff = m2m_audit.m2m_dict_diff(old_state, new_state)
         self.assertEqual(diff, expected_response)
