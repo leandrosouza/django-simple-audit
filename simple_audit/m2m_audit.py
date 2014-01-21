@@ -28,7 +28,7 @@ def normalize_dict(d):
     for k in d.keys():
         if d.get(k).find('password') != -1:
             d[k] = 'xxxxx'
-            
+
     return d
 
 
@@ -86,14 +86,14 @@ def m2m_clean_unchanged_fields(dict_diff):
     for key in dict_diff.keys():
         new_dict = {}
         dict_ = dict_diff.get(key)
-        
+
         for value in dict_.keys():
             compound_key = "%s.%s" % (key, value)
             if dict_[value][0] == dict_[value][1]:
                 del dict_[value]
             else:
                 new_dict[compound_key] = dict_[value]
-        
+
         del dict_diff[key]
         if new_dict:
             dict_list.append(new_dict)
@@ -115,11 +115,7 @@ def m2m_dict_diff(old, new):
     diff_old = {}
     diff_new = {}
     for key in old.keys():
-        if not field_name:
-            field_name = key
-        else:
-            if field_name != key:
-                LOG.warning("ops... field_name name change detected")
+        field_name = key
         ###########
         # oldstate
         ##########
