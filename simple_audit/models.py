@@ -6,6 +6,8 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
+from .managers import AuditManager
+
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.translation import ugettext_lazy as _
@@ -44,6 +46,8 @@ class Audit(models.Model):
     audit_request = models.ForeignKey("AuditRequest", null=True)
     description = models.TextField()
     obj_description = models.CharField(max_length=100, db_index=True, null=True, blank=True)
+
+    objects = AuditManager()
 
     @property
     def operation_name(self):
