@@ -28,6 +28,7 @@ Then modify your settings.py, adding the package `simple_audit` in INSTALLED_APP
 	     'simple_audit.middleware.TrackingRequestOnThreadLocalMiddleware',
 	)
 
+	DJANGO_SIMPLE_AUDIT_ACTIVATED = True
 
 Usage
 ======
@@ -119,6 +120,11 @@ TODO
 
 CHANGELOG
 =========
+* 0.1.14
+	* improved m2m audit feature ( thanks dinie )
+    * Add support for Custom user model ( thanks dinie )
+    * Option to turn on/off auditing ( thanks dinie )
+
 * 0.1.12
     * Created some simple tests
     * Enable many to many fiedls tracking (see Usage)
