@@ -4,8 +4,8 @@ import logging
 import threading
 import uuid
 
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
 from .managers import AuditManager
 
 from django.contrib.contenttypes.models import ContentType
@@ -93,7 +93,7 @@ class AuditRequest(models.Model):
     ip = models.IPAddressField()
     path = models.CharField(max_length=1024)
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("Date"))
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'))
 
     class Meta:
         db_table = 'audit_request'
