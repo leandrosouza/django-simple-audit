@@ -5,7 +5,7 @@ STATUS_PROD = 'Development Status :: 5 - Production/Stable'
 STATUS_BETA = 'Development Status :: 4 - Beta'
 STATUS_ALPHA = 'Development Status :: 3 - Alpha'
 
-version = '0.1.13c'
+version = '0.1.14'
 README = os.path.join(os.path.dirname(__file__), 'README.rst')
 long_description = open(README).read()
 setup(
@@ -14,7 +14,7 @@ setup(
     description="Simple audit for model instances in Django.",
     long_description=long_description,
     classifiers=[
-        STATUS_BETA,
+        STATUS_PROD,
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
