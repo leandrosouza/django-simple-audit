@@ -1,0 +1,138 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-07-02 15:32+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: admin.py:15
+msgid "Object"
+msgstr "Objekt"
+
+#: admin.py:47 models.py:41 models.py:97
+#: templates/admin/simple_audit/audit/change_form.html:36
+msgid "Date"
+msgstr "Datum"
+
+#: admin.py:54 templates/admin/simple_audit/audit/change_form.html:25
+msgid "Description"
+msgstr "Popis"
+
+#: admin.py:60 admin.py:72
+msgid "Click to filter"
+msgstr "Klikni pro vyfiltrování"
+
+#: admin.py:66
+msgid "Current Content"
+msgstr "Aktuální verze"
+
+#: admin.py:75
+msgid "unknown"
+msgstr "neznámý"
+
+#: admin.py:78
+msgid "User"
+msgstr "Uživatel"
+
+#: models.py:37
+msgid "add"
+msgstr "přidání"
+
+#: models.py:38
+msgid "change"
+msgstr "změna"
+
+#: models.py:39
+msgid "delete"
+msgstr "smazání"
+
+#: models.py:42 templates/admin/simple_audit/audit/change_form.html:19
+msgid "Operation"
+msgstr "Operace"
+
+#: models.py:58 models.py:60 models.py:85 models.py:87 models.py:102
+#: models.py:104
+msgid "Audits"
+msgstr "Záznamy o změnách"
+
+#: models.py:59 models.py:86 models.py:103
+msgid "Audit"
+msgstr "Záznam o změně"
+
+#: signal.py:209 signal.py:220
+msgid "field"
+msgstr "položka"
+
+#: signal.py:211 signal.py:222
+msgid "was changed from"
+msgstr "byla změněna z"
+
+#: signal.py:213 signal.py:224
+msgid "to"
+msgstr "na"
+
+#: signal.py:228
+#, python-format
+msgid "Deleted %s"
+msgstr "Smazáno: %s"
+
+#: signal.py:230
+#, python-format
+msgid "Added %s"
+msgstr "Přidáno: %s"
+
+#: templates/admin/simple_audit/audit/change_form.html:10
+msgid "Object info"
+msgstr "Informace o objektu"
+
+#: templates/admin/simple_audit/audit/change_form.html:13
+msgid "Content type"
+msgstr "Typ obsahu"
+
+#: templates/admin/simple_audit/audit/change_form.html:14
+msgid "with"
+msgstr "s"
+
+#: templates/admin/simple_audit/audit/change_form.html:33
+msgid "Request info"
+msgstr "Informace o požadavku"
+
+#: templates/admin/simple_audit/audit/change_form.html:42
+msgid "Request ID"
+msgstr "ID požadavku"
+
+#: templates/admin/simple_audit/audit/change_form.html:48
+msgid "Username"
+msgstr "Uživatelské jméno"
+
+#: templates/admin/simple_audit/audit/change_form.html:60
+msgid "path"
+msgstr "Cesta"
+
+#: templates/admin/simple_audit/audit/change_form.html:68
+msgid "Fields were changed"
+msgstr "Změněné položky"
+
+#: templates/admin/simple_audit/audit/change_form.html:72
+msgid "Field"
+msgstr "Položka"
+
+#: templates/admin/simple_audit/audit/change_form.html:73
+msgid "Old value"
+msgstr "Původní hodnota"
+
+#: templates/admin/simple_audit/audit/change_form.html:74
+msgid "New value"
+msgstr "Nová hodnota"
