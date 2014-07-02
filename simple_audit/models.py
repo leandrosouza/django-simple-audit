@@ -55,8 +55,9 @@ class Audit(models.Model):
 
     class Meta:
         db_table = 'audit'
-        app_label = CustomAppName('simple_audit', 'Audits')
-        verbose_name = u'Audit'
+        app_label = CustomAppName('simple_audit', _('Audits'))
+        verbose_name = _('Audit')
+        verbose_name_plural = _('Audits')
 
     @staticmethod
     def register(audit_obj, description, operation=None):
@@ -81,8 +82,9 @@ class AuditChange(models.Model):
 
     class Meta:
         db_table = 'audit_change'
-        app_label = CustomAppName('simple_audit', 'Audits')
-        verbose_name = u'Audit'
+        app_label = CustomAppName('simple_audit', _('Audits'))
+        verbose_name = _('Audit')
+        verbose_name_plural = _('Audits')
 
 
 class AuditRequest(models.Model):
@@ -97,8 +99,9 @@ class AuditRequest(models.Model):
 
     class Meta:
         db_table = 'audit_request'
-        app_label = CustomAppName('simple_audit', 'Audits')
-        verbose_name = u'Audit'
+        app_label = CustomAppName('simple_audit', _('Audits'))
+        verbose_name = _('Audit')
+        verbose_name_plural = _('Audits')
 
     @staticmethod
     def new_request(path, user, ip):

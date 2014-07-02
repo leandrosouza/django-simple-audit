@@ -44,7 +44,7 @@ class AuditAdmin(admin.ModelAdmin):
 
     def format_date(self, obj):
         return obj.date.strftime('%d/%m/%Y %H:%M')
-    format_date.short_description = 'Date'
+    format_date.short_description = _("Date")
     format_date.admin_order_field = 'date'
 
     def audit_description(self, audit):
@@ -57,7 +57,7 @@ class AuditAdmin(admin.ModelAdmin):
         obj_string = audit.obj_description or unicode(audit.content_object)
 
         return "<a title='%(filter)s' href='%(base)s?content_type__id__exact=%(type_id)s&object_id__exact=%(id)s'>%(type)s: %(obj)s</a>" % {
-            'filter': unicode(_("Click to filter")),
+            'filter': _("Click to filter"),
             'base': reverse('admin:simple_audit_audit_changelist'),
             'type': audit.content_type,
             'type_id': audit.content_type.id,
