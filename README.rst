@@ -120,6 +120,10 @@ TODO
 
 CHANGELOG
 =========
+* 0.1.15
+	* use larger TextField for storing values ( thanks dinie )
+	* Czech translation ( thanks cuchac )
+
 * 0.1.14
 	* improved m2m audit feature ( thanks dinie )
     * Add support for Custom user model ( thanks dinie )
