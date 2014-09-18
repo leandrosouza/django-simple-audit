@@ -65,7 +65,7 @@ class Audit(models.Model):
         audit.operation = Audit.CHANGE if operation is None else operation
         audit.content_object = audit_obj
         audit.description = description
-        audit.obj_description = audit_obj and unicode(audit_obj)
+        audit.obj_description = audit_obj and unicode(audit_obj)[:100]
         audit.audit_request = AuditRequest.current_request(True)
         audit.save()
         return audit
