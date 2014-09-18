@@ -1,3 +1,5 @@
+[![Build Status](https://drone.io/github.com/stratasan/django-simple-audit/status.png)](https://drone.io/github.com/stratasan/django-simple-audit/latest)
+
 ****************************************
 django simple audit
 ****************************************
