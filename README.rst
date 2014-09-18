@@ -1,4 +1,4 @@
-.. image:: //drone.io/github.com/stratasan/django-simple-audit/status.png
+.. image:: https://drone.io/github.com/stratasan/django-simple-audit/status.png
 
 ****************************************
 django simple audit
