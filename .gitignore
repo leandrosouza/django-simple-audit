@@ -1,6 +1,8 @@
 *.pyc
 .DS_Store
 *.db
+*.orig
 build
 dist
 *.egg-info
+*.orig

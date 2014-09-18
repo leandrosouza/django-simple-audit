@@ -4,8 +4,10 @@ import logging
 import threading
 import uuid
 
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
+from .managers import AuditManager
+
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.translation import ugettext_lazy as _
@@ -45,14 +47,17 @@ class Audit(models.Model):
     description = models.TextField()
     obj_description = models.CharField(max_length=100, db_index=True, null=True, blank=True)
 
+    objects = AuditManager()
+
     @property
     def operation_name(self):
         return dict(self.OPERATION_CHOICES)[self.operation]
 
     class Meta:
         db_table = 'audit'
-        app_label = CustomAppName('simple_audit', 'Audits')
-        verbose_name = u'Audit'
+        app_label = CustomAppName('simple_audit', _('Audits'))
+        verbose_name = _('Audit')
+        verbose_name_plural = _('Audits')
 
     @staticmethod
     def register(audit_obj, description, operation=None):
@@ -77,8 +82,9 @@ class AuditChange(models.Model):
 
     class Meta:
         db_table = 'audit_change'
-        app_label = CustomAppName('simple_audit', 'Audits')
-        verbose_name = u'Audit'
+        app_label = CustomAppName('simple_audit', _('Audits'))
+        verbose_name = _('Audit')
+        verbose_name_plural = _('Audits')
 
 
 class AuditRequest(models.Model):
@@ -89,18 +95,19 @@ class AuditRequest(models.Model):
     ip = models.IPAddressField()
     path = models.CharField(max_length=1024)
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("Date"))
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'))
 
     class Meta:
         db_table = 'audit_request'
-        app_label = CustomAppName('simple_audit', 'Audits')
-        verbose_name = u'Audit'
+        app_label = CustomAppName('simple_audit', _('Audits'))
+        verbose_name = _('Audit')
+        verbose_name_plural = _('Audits')
 
     @staticmethod
     def new_request(path, user, ip):
         """
         Create a new request from a path, user and ip and put it on thread context.
-        The new request not be saved until first use or calling method current_request(True)
+        The new request should not be saved until first use or calling method current_request(True)
         """
         audit_request = AuditRequest()
         audit_request.ip = ip
