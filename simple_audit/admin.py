@@ -56,7 +56,7 @@ class AuditAdmin(admin.ModelAdmin):
     def audit_content(self, audit):
         obj_string = audit.obj_description or unicode(audit.content_object)
 
-        return "<a title='%(filter)s' href='%(base)s?content_type__id__exact=%(type_id)s&object_id__exact=%(id)s'>%(type)s: %(obj)s</a>" % {
+        return u"<a title='%(filter)s' href='%(base)s?content_type__id__exact=%(type_id)s&object_id__exact=%(id)s'>%(type)s: %(obj)s</a>" % {
             'filter': _("Click to filter"),
             'base': reverse('admin:simple_audit_audit_changelist'),
             'type': audit.content_type,
