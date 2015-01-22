@@ -106,7 +106,7 @@ class AuditAdmin(admin.ModelAdmin):
     audit_user.short_description = _("User")
     audit_user.allow_tags = True
 
-    def queryset(self, request):
+    def get_queryset(self, request):
         """QS."""
         request.GET = request.GET.copy()
         user_filter = request.GET.pop("user", None)
