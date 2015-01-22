@@ -22,4 +22,4 @@ class AuditManager(models.Manager):
         # see https://code.djangoproject.com/ticket/15062 for details
         if attr.startswith("_"):
             raise AttributeError
-        return getattr(self.get_query_set(), attr, *args)
+        return getattr(self.get_queryset(), attr, *args)
