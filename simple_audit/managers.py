@@ -15,7 +15,7 @@ class AuditQuerySet(QuerySet):
 
 
 class AuditManager(models.Manager):
-    def get_query_set(self):
+    def get_queryset(self):
         return AuditQuerySet(self.model)
 
     def __getattr__(self, attr, *args):
