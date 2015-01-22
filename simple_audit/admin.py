@@ -1,12 +1,14 @@
+# -*- coding:utf-8 -*-
 """Admin related view."""
-# -*- coding:utf-8 -*_
+
+from django.core.urlresolvers import reverse
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_text
 from django.utils.html import escape
-from django.core.urlresolvers import reverse
+
 from .models import Audit
 from .signal import MODEL_LIST
 
@@ -78,7 +80,7 @@ class AuditAdmin(admin.ModelAdmin):
             audit.obj_description or smart_text((audit.content_object)))
 
         return smart_text("<a title='{0}' href='{1}?content_type__id__exact=\
-                          {2}&object_id__exact={3}'>{4}: {5}</a>".format(
+                          {2}&object_id__exact={3}'>{4}: {5}</a>").format(
                 _("Click to filter"),
                 reverse('admin:simple_audit_audit_changelist'),
                 audit.content_type,
@@ -86,7 +88,6 @@ class AuditAdmin(admin.ModelAdmin):
                 obj_string,
                 audit.object_id
             )
-        )
 
     audit_content.short_description = _("Current Content")
     audit_content.allow_tags = True
@@ -94,11 +95,11 @@ class AuditAdmin(admin.ModelAdmin):
     def audit_user(self, audit):
         """Return audit object user."""
         if audit.audit_request:
-            return smart_text("<a title='%s' href='%s?user=%d'>%s</a>" % (
+            return smart_text("<a title='%s' href='%s?user=%d'>%s</a>") % (
                 _("Click to filter"),
                 reverse('admin:simple_audit_audit_changelist'),
                 audit.audit_request.user.id, audit.audit_request.user
-            ))
+            )
         else:
             return smart_text("%s" % _("unknown"))
 
