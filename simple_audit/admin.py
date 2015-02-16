@@ -43,9 +43,10 @@ class ContentTypeListFilter(SimpleListFilter):
         `self.value()`.
         """
         if self.value():
-            return queryset.filter(content_type_id=self.value())
+            qs = queryset.filter(content_type_id=self.value())
         else:
-            return queryset
+            qs = queryset
+        return qs
 
 
 class AuditAdmin(admin.ModelAdmin):
@@ -76,11 +77,11 @@ class AuditAdmin(admin.ModelAdmin):
 
     def audit_content(self, audit):
         """Return audit object content."""
-        obj_string = (
-            audit.obj_description or smart_text((audit.content_object)))
+        obj_string = audit.obj_description or audit.content_object
 
-        return smart_text("<a title='{0}' href='{1}?content_type__id__exact=\
-                          {2}&object_id__exact={3}'>{4}: {5}</a>").format(
+        return smart_text("<a title='{0}' href='{1}?content_type"
+                          "__id__exact={2}&object_id__exact={3}'>"
+                          "{4}: {5}</a>").format(
                 _("Click to filter"),
                 reverse('admin:simple_audit_audit_changelist'),
                 audit.content_type,
@@ -95,13 +96,15 @@ class AuditAdmin(admin.ModelAdmin):
     def audit_user(self, audit):
         """Return audit object user."""
         if audit.audit_request:
-            return smart_text("<a title='%s' href='%s?user=%d'>%s</a>") % (
+            user = "<a title='%s' href='%s?user=%d'>%s</a>" % (
                 _("Click to filter"),
                 reverse('admin:simple_audit_audit_changelist'),
                 audit.audit_request.user.id, audit.audit_request.user
             )
         else:
-            return smart_text("%s" % _("unknown"))
+            user = "%s" % _("Unknown")
+
+        return smart_text(user)
 
     audit_user.admin_order_field = "audit_request__user"
     audit_user.short_description = _("User")
