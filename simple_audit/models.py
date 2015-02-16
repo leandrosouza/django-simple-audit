@@ -104,7 +104,7 @@ class AuditRequest(models.Model):
         verbose_name_plural = _('Audits')
 
     @staticmethod
-    def new_request(path, user=None, ip):
+    def new_request(path, ip, user=None):
         """
         Create a new request from a path, user and ip and put it on thread context.
         The new request should not be saved until first use or calling method current_request(True)
