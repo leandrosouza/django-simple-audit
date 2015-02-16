@@ -54,15 +54,18 @@ def audit_post_save(sender, **kwargs):
 
 
 def audit_pre_save(sender, **kwargs):
-    instance=kwargs.get('instance')
+    """Pre save."""
+    instance = kwargs.get('instance')
     if instance.pk:
         if settings.DJANGO_SIMPLE_AUDIT_M2M_FIELDS:
-            if m2m_audit.get_m2m_fields_for(instance): #has m2m fields?
+            if m2m_audit.get_m2m_fields_for(instance):  # has m2m fields?
                 cache_key = get_cache_key_for_instance(instance)
-                dict_ = {"old_state" : {}, "new_state": {}}
-                dict_["old_state"] = m2m_audit.get_m2m_values_for(instance=instance)
+                dict_ = {"old_state": {}, "new_state": {}}
+                dict_["old_state"] = m2m_audit.get_m2m_values_for(
+                    instance=instance)
                 cache.set(cache_key, dict_, DEFAULT_CACHE_TIMEOUT)
-                LOG.debug("old_state saved in cache with key %s for m2m auditing" % cache_key)
+                LOG.debug("old_state saved in cache with key "
+                          "%s for m2m auditing" % cache_key)
         save_audit(kwargs['instance'], Audit.CHANGE)
 
 

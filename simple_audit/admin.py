@@ -77,7 +77,8 @@ class AuditAdmin(admin.ModelAdmin):
 
     def audit_content(self, audit):
         """Return audit object content."""
-        obj_string = audit.obj_description or audit.content_object
+        obj_string = (audit.obj_description or audit.content_object
+                      or audit.content_object_save)
 
         return smart_text("<a title='{0}' href='{1}?content_type"
                           "__id__exact={2}&object_id__exact={4}'>"

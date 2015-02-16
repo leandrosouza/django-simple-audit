@@ -43,6 +43,7 @@ class Audit(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.TextField(db_index=True)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object_save = models.CharField(max_length=50, null=True)
     audit_request = models.ForeignKey("AuditRequest", null=True)
     description = models.TextField()
     obj_description = models.CharField(max_length=100, db_index=True, null=True, blank=True)
