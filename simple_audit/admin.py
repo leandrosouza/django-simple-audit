@@ -80,11 +80,10 @@ class AuditAdmin(admin.ModelAdmin):
         obj_string = audit.obj_description or audit.content_object
 
         return smart_text("<a title='{0}' href='{1}?content_type"
-                          "__id__exact={2}&object_id__exact={3}'>"
-                          "{4}: {5}</a>").format(
+                          "__id__exact={2}&object_id__exact={4}'>"
+                          "{3}: {4}</a>").format(
                 _("Click to filter"),
                 reverse('admin:simple_audit_audit_changelist'),
-                audit.content_type,
                 audit.content_type.id,
                 obj_string,
                 audit.object_id
