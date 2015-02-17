@@ -39,14 +39,16 @@ class Audit(models.Model):
         (DELETE, _('delete'))
     )
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("Date"))
-    operation = models.PositiveIntegerField(max_length=255, choices=OPERATION_CHOICES, verbose_name=_('Operation'))
+    operation = models.PositiveIntegerField(
+        max_length=255, choices=OPERATION_CHOICES, verbose_name=_('Operation'))
     content_type = models.ForeignKey(ContentType)
     object_id = models.TextField(db_index=True)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
     content_object_save = models.CharField(max_length=50, null=True)
     audit_request = models.ForeignKey("AuditRequest", null=True)
     description = models.TextField()
-    obj_description = models.CharField(max_length=100, db_index=True, null=True, blank=True)
+    obj_description = models.CharField(
+        max_length=100, db_index=True, null=True, blank=True)
 
     objects = AuditManager()
 
@@ -64,7 +66,8 @@ class Audit(models.Model):
     def register(audit_obj, description, operation=None):
         audit = Audit()
         audit.operation = Audit.CHANGE if operation is None else operation
-        audit.content_object = audit.content_object_save = audit_obj
+        audit.content_object = audit.content_object_save = smart_text(
+            audit_obj)
         audit.description = description
         audit.obj_description = (smart_text(audit_obj) and "")[:100]
         audit.audit_request = AuditRequest.current_request(True)
