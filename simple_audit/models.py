@@ -3,6 +3,7 @@
 import logging
 import threading
 import uuid
+from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models
@@ -10,7 +11,7 @@ from .managers import AuditManager
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import smart_text
+from django.utils.encoding import python_2_unicode_compatible
 
 
 LOG = logging.getLogger(__name__)
@@ -29,6 +30,7 @@ class CustomAppName(str):
     __deepcopy__ = lambda self, memodict: self
 
 
+@python_2_unicode_compatible
 class Audit(models.Model):
     ADD = 0
     CHANGE = 1
@@ -74,10 +76,11 @@ class Audit(models.Model):
         audit.save()
         return audit
 
-    def __unicode__(self):
-        return smart_text("%s" % (self.operation))
+    def __str__(self):
+        return "%s" % (self.operation)
 
 
+@python_2_unicode_compatible
 class AuditChange(models.Model):
     audit = models.ForeignKey(Audit, related_name='field_changes')
     field = models.CharField(max_length=255)
@@ -91,6 +94,7 @@ class AuditChange(models.Model):
         verbose_name_plural = _('Audits')
 
 
+@python_2_unicode_compatible
 class AuditRequest(models.Model):
 
     THREAD_LOCAL = threading.local()
