@@ -81,7 +81,6 @@ class Audit(models.Model):
         return "%s" % (self.operation)
 
 
-@python_2_unicode_compatible
 class AuditChange(models.Model):
     audit = models.ForeignKey(Audit, related_name='field_changes')
     field = models.CharField(max_length=255)
@@ -95,7 +94,6 @@ class AuditChange(models.Model):
         verbose_name_plural = _('Audits')
 
 
-@python_2_unicode_compatible
 class AuditRequest(models.Model):
 
     THREAD_LOCAL = threading.local()
