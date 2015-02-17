@@ -66,8 +66,8 @@ class Audit(models.Model):
     def register(audit_obj, description, operation=None):
         audit = Audit()
         audit.operation = Audit.CHANGE if operation is None else operation
-        audit.content_object = audit.content_object_save = smart_text(
-            audit_obj)
+        audit.content_object = smart_text(audit_obj)
+        audit.content_object_save = audit.content_object
         audit.description = description
         audit.obj_description = (smart_text(audit_obj) and "")[:100]
         audit.audit_request = AuditRequest.current_request(True)
