@@ -2,8 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 import logging
 import re
-import threading
-from pprint import pprint
 from . import m2m_audit
 from django.db import models
 from .models import Audit, AuditChange
@@ -15,16 +13,15 @@ MODEL_LIST = set()
 LOG = logging.getLogger(__name__)
 DEFAULT_CACHE_TIMEOUT = 120
 
+
 def get_cache_key_for_instance(instance, cache_prefix="django_simple_audit"):
-    
-    return "%s:%s:%s" % (cache_prefix, instance.__class__.__name__, instance.pk)
+    return "{cache_prefix}:{class_name}:{instance_pk}".format(
+        cache_prefix, instance.__class__.__name__, instance.pk)
+
 
 def audit_m2m_change(sender, **kwargs):
-    """
-    audit m2m changes if the settings DJANGO_SIMPLE_AUDIT_M2M_FIELDS is set to True
-    """
+    """audit m2m changes if DJANGO_SIMPLE_AUDIT_M2M_FIELDS settings is True."""
     if kwargs.get('action'):
-        action = kwargs.get('action')
         instance = kwargs.get('instance')
         if kwargs['action'] == "pre_add":
             pass
@@ -32,9 +29,10 @@ def audit_m2m_change(sender, **kwargs):
             cache_key = get_cache_key_for_instance(instance)
             dict_ = cache.get(cache_key)
             if not dict_:
-                dict_ = {"old_state" : {}, "new_state": {}}
+                dict_ = {"old_state": {}, "new_state": {}}
 
-            dict_["new_state"] = m2m_audit.get_m2m_values_for(instance=instance)
+            dict_["new_state"] = m2m_audit.get_m2m_values_for(
+                instance=instance)
             dict_["m2m_change"] = True
             cache.set(cache_key, dict_, DEFAULT_CACHE_TIMEOUT)
             save_audit(instance, Audit.CHANGE, kwargs=dict_)
@@ -50,7 +48,6 @@ def audit_m2m_change(sender, **kwargs):
 
 def audit_post_save(sender, **kwargs):
     if kwargs['created']:
-        print kwargs
         save_audit(kwargs['instance'], Audit.ADD)
 
 
@@ -93,20 +90,22 @@ def register(*my_models):
                     for m2m in m2ms:
                         try:
                             sender_m2m = getattr(model, m2m[0].name).through
-                            if sender_m2m.__name__ == "{}_{}".format(model.__name__, m2m[0].name):
-                                models.signals.m2m_changed.connect(audit_m2m_change, sender=sender_m2m)
-                                LOG.debug("Attached signal to: %s" % sender_m2m)
+                            if sender_m2m.__name__ == "{}_{}".format(
+                                    model.__name__, m2m[0].name):
+                                models.signals.m2m_changed.connect(
+                                    audit_m2m_change, sender=sender_m2m)
+                                LOG.debug("Attached signal to: {}".format(
+                                    sender_m2m))
                         except Exception, e:
-                            LOG.warning("could not create signal for m2m field: %s" % e)
+                            LOG.warning("could not create signal " +
+                                        "for m2m field: {}".format(e))
 
 
 NOT_ASSIGNED = object()
 
 
 def get_value(obj, attr):
-    """
-    Returns the value of an attribute. First it tries to return the unicode value.
-    """
+    """Returns attribute value. First tries to return unicode value."""
     if hasattr(obj, attr):
         try:
             return getattr(obj, attr).__unicode__()
@@ -159,9 +158,10 @@ def dict_diff(old, new):
 def save_audit(instance, operation, kwargs={}):
     """
     Saves the audit.
+
     However, the variable persist_audit controls if the audit should be really
-    saved to the database or not. This variable is only affected in a change operation. If no
-    change is detected than it is setted to False.
+    saved to the database or not. This variable is only affected in a change
+    operation. If no change is detected than it is setted to False.
 
     Keyword arguments:
     instance -- instance
@@ -204,23 +204,23 @@ def save_audit(instance, operation, kwargs={}):
                 descriptions = []
                 for changed_field in changed_fields:
                     description = "\n".join(["{0} {1}: {2} {3} {4} {5}".format(
-                            _("field"),
-                            k,
-                            _("was changed from"),
-                            v[0],
-                            _("to"),
-                            v[1],
-                        ) for k, v in changed_field.items()])
-                    descriptions.append(description)
-            else:
-                description = "\n".join(["{0} {1}: {2} {3} {4} {5}".format(
                         _("field"),
                         k,
                         _("was changed from"),
                         v[0],
                         _("to"),
                         v[1],
-                    ) for k, v in changed_fields.items()])
+                    ) for k, v in changed_field.items()])
+                    descriptions.append(description)
+            else:
+                description = "\n".join(["{0} {1}: {2} {3} {4} {5}".format(
+                    _("field"),
+                    k,
+                    _("was changed from"),
+                    v[0],
+                    _("to"),
+                    v[1],
+                ) for k, v in changed_fields.items()])
         elif operation == Audit.DELETE:
             description = _('Deleted {0}').format(instance)
         elif operation == Audit.ADD:
@@ -228,7 +228,7 @@ def save_audit(instance, operation, kwargs={}):
 
         LOG.debug("called audit with operation={0} "
                   "instance={1} persist={2}".format(
-                    operation, instance, persist_audit))
+                      operation, instance, persist_audit))
         if persist_audit:
             if m2m_change:
                 for description in descriptions:
