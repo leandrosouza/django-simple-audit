@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
 
+from __future__ import unicode_literals
+
 import logging
 import threading
 import uuid
@@ -10,6 +12,7 @@ from .managers import AuditManager
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import python_2_unicode_compatible
 
 
 LOG = logging.getLogger(__name__)
@@ -28,6 +31,7 @@ class CustomAppName(str):
     __deepcopy__ = lambda self, memodict: self
 
 
+@python_2_unicode_compatible
 class Audit(models.Model):
     ADD = 0
     CHANGE = 1
@@ -38,13 +42,16 @@ class Audit(models.Model):
         (DELETE, _('delete'))
     )
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("Date"))
-    operation = models.PositiveIntegerField(max_length=255, choices=OPERATION_CHOICES, verbose_name=_('Operation'))
+    operation = models.PositiveIntegerField(
+        max_length=255, choices=OPERATION_CHOICES, verbose_name=_('Operation'))
     content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField(db_index=True)
+    object_id = models.TextField(db_index=True)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object_save = models.CharField(max_length=50, null=True)
     audit_request = models.ForeignKey("AuditRequest", null=True)
     description = models.TextField()
-    obj_description = models.CharField(max_length=100, db_index=True, null=True, blank=True)
+    obj_description = models.CharField(
+        max_length=100, db_index=True, null=True, blank=True)
 
     objects = AuditManager()
 
@@ -63,14 +70,15 @@ class Audit(models.Model):
         audit = Audit()
         audit.operation = Audit.CHANGE if operation is None else operation
         audit.content_object = audit_obj
+        audit.content_object_save = audit_obj
         audit.description = description
-        audit.obj_description = (audit_obj and unicode(audit_obj) and '')[:100]
+        audit.obj_description = (audit_obj and "")[:100]
         audit.audit_request = AuditRequest.current_request(True)
         audit.save()
         return audit
 
-    def __unicode__(self):
-        return u"%s" % (self.operation)
+    def __str__(self):
+        return "%s" % (self.operation)
 
 
 class AuditChange(models.Model):
