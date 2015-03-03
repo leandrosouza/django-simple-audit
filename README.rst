@@ -120,6 +120,9 @@ TODO
 
 CHANGELOG
 =========
+* 0.1.20
+        * Add .get_queryset to AuditManager ( thanks sburns )
+
 * 0.1.19
 	* Tracking user from Django REST Framework authentication ( thanks jnishiyama )
 
