@@ -120,6 +120,9 @@ TODO
 
 CHANGELOG
 =========
+* 0.1.21
+	* Problems with upload to pypi ( the version was used ) - Sux 
+
 * 0.1.20
         * Add .get_queryset to AuditManager ( thanks sburns )
 
