@@ -91,7 +91,7 @@ class AuditRequest(models.Model):
     THREAD_LOCAL = threading.local()
 
     request_id = models.CharField(max_length=255)
-    ip = models.IPAddressField()
+    ip = models.GenericIPAddressField()
     path = models.CharField(max_length=1024)
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("Date"))
     user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'))
