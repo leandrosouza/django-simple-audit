@@ -40,7 +40,7 @@ class ContentTypeListFilter(SimpleListFilter):
 
 
 class AuditAdmin(admin.ModelAdmin):
-    search_fields = ("audit_request__user__username", "description", "audit_request__request_id", "obj_description", )
+    search_fields = ("description", "audit_request__request_id", "obj_description", "object_id")
     list_display = ("format_date", "audit_content", "operation", "audit_user", "audit_description", )
     list_filter = ("operation", ContentTypeListFilter,)
 

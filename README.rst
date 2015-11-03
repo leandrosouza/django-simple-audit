@@ -122,6 +122,15 @@ TODO
 
 CHANGELOG
 =========
+* 0.1.21
+	* Problems with upload to pypi ( the version was used ) - Sux 
+
+* 0.1.20
+        * Add .get_queryset to AuditManager ( thanks sburns )
+
+* 0.1.19
+	* Tracking user from Django REST Framework authentication ( thanks jnishiyama )
+
 * 0.1.15
 	* use larger TextField for storing values ( thanks dinie )
 	* Czech translation ( thanks cuchac )
