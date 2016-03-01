@@ -12,8 +12,14 @@ def ValuesQuerySetToDict(vqs):
 
 
 def get_m2m_fields_for(instance=None):
-    """gets m2mfields for instance"""
-    return instance._meta._many_to_many()
+    """gets m2mfields for instance
+
+    instance._meta._many_to_many was deprecated, this follows
+    https://docs.djangoproject.com/en/1.9/ref/models/meta/#migrating-from-the-old-api
+    for migrating to the new API. This is similar to get_m2m_with_model
+    except only includes field in the list and not their models. """
+    return [f for f in instance._meta.get_fields()
+        if f.many_to_many and not f.auto_created]
 
 
 def get_m2m_values_for(instance=None):

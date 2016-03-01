@@ -84,7 +84,14 @@ def register(*my_models):
 
             # signals for m2m fields
             if settings.DJANGO_SIMPLE_AUDIT_M2M_FIELDS:
-                m2ms = model._meta.get_m2m_with_model()
+                # model._meta.get_m2m_with_model is removed in 1.9
+                # See https://docs.djangoproject.com/en/1.9/ref/models/meta/#migrating-from-the-old-api
+                # for where this migration code comes from
+                m2ms = [
+                    (f, f.model if f.model != model else None)
+                    for f in model._meta.get_fields()
+                    if f.many_to_many and not f.auto_created
+                ]
                 if m2ms:
                     for m2m in m2ms:
                         try:
