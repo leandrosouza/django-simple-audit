@@ -1,3 +1,5 @@
+.. image:: https://drone.io/github.com/stratasan/django-simple-audit/status.png
+
 ****************************************
 django simple audit
 ****************************************
@@ -123,6 +125,14 @@ CHANGELOG
 * 0.2
     * Update with compatibility for Django 1.9
     * Add Migrations
+* 0.1.21
+	* Problems with upload to pypi ( the version was used ) - Sux 
+
+* 0.1.20
+        * Add .get_queryset to AuditManager ( thanks sburns )
+
+* 0.1.19
+	* Tracking user from Django REST Framework authentication ( thanks jnishiyama )
 
 * 0.1.15
 	* use larger TextField for storing values ( thanks dinie )

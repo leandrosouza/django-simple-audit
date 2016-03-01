@@ -16,10 +16,13 @@ class AuditQuerySet(QuerySet):
 
 class AuditManager(models.Manager):
     def get_query_set(self):
+        return self.get_queryset()
+
+    def get_queryset(self):
         return AuditQuerySet(self.model)
 
     def __getattr__(self, attr, *args):
         # see https://code.djangoproject.com/ticket/15062 for details
         if attr.startswith("_"):
             raise AttributeError
-        return getattr(self.get_query_set(), attr, *args)
+        return getattr(self.get_queryset(), attr, *args)
