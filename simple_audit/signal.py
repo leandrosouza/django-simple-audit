@@ -99,7 +99,7 @@ def register(*my_models):
                             if sender_m2m.__name__ == "{}_{}".format(model.__name__, m2m[0].name):
                                 models.signals.m2m_changed.connect(audit_m2m_change, sender=sender_m2m)
                                 LOG.debug("Attached signal to: %s" % sender_m2m)
-                        except Exception, e:
+                        except Exception as e:
                             LOG.warning("could not create signal for m2m field: %s" % e)
 
 
