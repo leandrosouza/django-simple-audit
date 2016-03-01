@@ -75,7 +75,7 @@ to audit a model you need import `simple_audit` and then register the model to b
 	        return self.name
 
 
-	simple_audit.register(Message, Owner, VirtualMachine)
+	simple_audit.signal.register(Message, Owner, VirtualMachine)
 
 Advanced Usage (without httprequest or our middleware)
 --------------------------------------------------------
@@ -122,6 +122,9 @@ TODO
 
 CHANGELOG
 =========
+* 0.2
+    * Update with compatibility for Django 1.9
+    * Add Migrations
 * 0.1.21
 	* Problems with upload to pypi ( the version was used ) - Sux 
 
