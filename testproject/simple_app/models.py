@@ -2,7 +2,6 @@
 
 from django.db import models
 from django.contrib.auth.models import User
-import simple_audit
 
 class Topping(models.Model):
 
@@ -36,7 +35,7 @@ class Owner(models.Model):
     def __unicode__(self):
         return self.name
 
-        
+
 class VirtualMachine(models.Model):
 
     name = models.CharField(max_length=50, blank=False)
@@ -49,4 +48,3 @@ class VirtualMachine(models.Model):
         return self.name
 
 
-simple_audit.register(Message, Owner, VirtualMachine, User, Pizza, Topping)

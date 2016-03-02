@@ -1,5 +1,5 @@
 # coding: utf-8
-from models import Message, Owner, VirtualMachine, Pizza, Topping
+from .models import Message, Owner, VirtualMachine, Pizza, Topping
 from django.contrib import admin
 
 

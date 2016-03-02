@@ -139,7 +139,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'simple_app',
     'simple_audit',
-    'django_extensions',
+
 )
 
 # A sample logging configuration. The only tangible logging

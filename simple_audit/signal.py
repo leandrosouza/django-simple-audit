@@ -84,7 +84,14 @@ def register(*my_models):
 
             # signals for m2m fields
             if settings.DJANGO_SIMPLE_AUDIT_M2M_FIELDS:
-                m2ms = model._meta.get_m2m_with_model()
+                # model._meta.get_m2m_with_model is removed in 1.9
+                # See https://docs.djangoproject.com/en/1.9/ref/models/meta/#migrating-from-the-old-api
+                # for where this migration code comes from
+                m2ms = [
+                    (f, f.model if f.model != model else None)
+                    for f in model._meta.get_fields()
+                    if f.many_to_many and not f.auto_created
+                ]
                 if m2ms:
                     for m2m in m2ms:
                         try:
@@ -92,7 +99,7 @@ def register(*my_models):
                             if sender_m2m.__name__ == "{}_{}".format(model.__name__, m2m[0].name):
                                 models.signals.m2m_changed.connect(audit_m2m_change, sender=sender_m2m)
                                 LOG.debug("Attached signal to: %s" % sender_m2m)
-                        except Exception, e:
+                        except Exception as e:
                             LOG.warning("could not create signal for m2m field: %s" % e)
 
 

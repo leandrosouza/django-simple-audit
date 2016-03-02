@@ -8,7 +8,7 @@ from django.conf import settings
 from django.db import models
 from .managers import AuditManager
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -41,7 +41,7 @@ class Audit(models.Model):
     operation = models.PositiveIntegerField(choices=OPERATION_CHOICES, verbose_name=_('Operation'))
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
     audit_request = models.ForeignKey("AuditRequest", null=True)
     description = models.TextField()
     obj_description = models.CharField(max_length=100, db_index=True, null=True, blank=True)
