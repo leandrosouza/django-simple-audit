@@ -122,6 +122,8 @@ TODO
 
 CHANGELOG
 =========
+* 0.3
+    * Update with compatibility for Django 1.10
 * 0.2
     * Update with compatibility for Django 1.9
     * Add Migrations
