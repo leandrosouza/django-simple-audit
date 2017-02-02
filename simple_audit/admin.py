@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from .models import Audit
 from .signal import MODEL_LIST
 
@@ -46,9 +46,9 @@ class AuditAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super(AuditAdmin, self).get_urls()
-        my_urls = patterns('',
+        my_urls = [
             url(r'^revert/(?P<audit_id>\d+)/$', self.admin_site.admin_view(self.revert_change), name='simple_audit_audit_revert')
-        )
+        ]
         return my_urls + urls
 
     def revert_change(self, request, audit_id):
