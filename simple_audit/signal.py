@@ -1,10 +1,13 @@
 # -*- coding:utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+
 import logging
 import re
 import threading
 from pprint import pprint
+
 from . import m2m_audit
+from django import VERSION as DJANGO_VERSION
 from django.db import models
 from .models import Audit, AuditChange
 from . import settings
@@ -16,7 +19,6 @@ LOG = logging.getLogger(__name__)
 DEFAULT_CACHE_TIMEOUT = 120
 
 def get_cache_key_for_instance(instance, cache_prefix="django_simple_audit"):
-    
     return "%s:%s:%s" % (cache_prefix, instance.__class__.__name__, instance.pk)
 
 def audit_m2m_change(sender, **kwargs):
@@ -132,7 +134,16 @@ def to_dict(obj):
 
     state = {}
 
-    for key in obj._meta.get_all_field_names():
+    if DJANGO_VERSION[0] < 2 and DJANGO_VERSION[1] < 10:
+        # Django 1.9 or older
+        field_names = obj._meta.get_all_field_names()
+    else:
+        # Django 1.10 or newer
+        # See implementation of _get_all_field_names
+        # https://docs.djangoproject.com/en/1.10/ref/models/meta/
+        field_names = obj._get_all_field_names(obj._meta)
+
+    for key in field_names:
         state[key] = get_value(obj, key)
 
     return state
@@ -153,7 +164,7 @@ def dict_diff(old, new):
             except:
                 pass
             diff[key] = (old_value, new_value)
-    
+
     if diff:
         LOG.debug("dict_diff: %s" % diff)
     return diff
@@ -196,7 +207,7 @@ def save_audit(instance, operation, kwargs={}):
                     old_state = kwargs.get("old_state", {})
         except:
             pass
-            
+
         if m2m_change:
             #m2m_change returns a list of changes
             changed_fields = m2m_audit.m2m_dict_diff(old_state, new_state)
@@ -207,7 +218,7 @@ def save_audit(instance, operation, kwargs={}):
             #is there any change?
             if not changed_fields:
                 persist_audit = False
-            
+
             if m2m_change:
                 descriptions = []
                 for changed_field in changed_fields:
@@ -242,7 +253,7 @@ def save_audit(instance, operation, kwargs={}):
                 for description in descriptions:
                     audit = Audit.register(instance, description, operation)
                     changed_field = changed_fields.pop(0)
-                    
+
                     for field, (old_value, new_value) in changed_field.items():
                         change = AuditChange()
                         change.audit = audit
