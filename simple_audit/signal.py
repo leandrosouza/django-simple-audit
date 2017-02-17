@@ -134,14 +134,7 @@ def to_dict(obj):
 
     state = {}
 
-    if DJANGO_VERSION[0] < 2 and DJANGO_VERSION[1] < 10:
-        # Django 1.9 or older
-        field_names = obj._meta.get_all_field_names()
-    else:
-        # Django 1.10 or newer
-        # See implementation of _get_all_field_names
-        # https://docs.djangoproject.com/en/1.10/ref/models/meta/
-        field_names = obj._get_all_field_names(obj._meta)
+    field_names = [f.name for f in obj._meta.get_fields()]
 
     for key in field_names:
         state[key] = get_value(obj, key)
