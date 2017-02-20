@@ -120,6 +120,8 @@ TODO
 
 CHANGELOG
 =========
+* 0.1.22
+	* Fixing admin display Current Content when audited model was deleted ( thanks otherpirate )
 * 0.1.21
 	* Problems with upload to pypi ( the version was used ) - Sux 
 
