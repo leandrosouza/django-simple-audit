@@ -10,7 +10,7 @@ from .managers import AuditManager
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.utils.translation import ugettext_lazy as _
-
+from django.utils.encoding import python_2_unicode_compatible
 
 LOG = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ class CustomAppName(str):
     __deepcopy__ = lambda self, memodict: self
 
 
+@python_2_unicode_compatible
 class Audit(models.Model):
     ADD = 0
     CHANGE = 1
@@ -64,13 +65,13 @@ class Audit(models.Model):
         audit.operation = Audit.CHANGE if operation is None else operation
         audit.content_object = audit_obj
         audit.description = description
-        audit.obj_description = (audit_obj and unicode(audit_obj) and '')[:100]
+        audit.obj_description = (audit_obj and str(audit_obj) and '')[:100]
         audit.audit_request = AuditRequest.current_request(True)
         audit.save()
         return audit
 
-    def __unicode__(self):
-        return u"%s" % (self.operation)
+    def __str__(self):
+        return "%s" % (self.operation)
 
 
 class AuditChange(models.Model):

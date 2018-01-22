@@ -114,11 +114,11 @@ def get_value(obj, attr):
     """
     if hasattr(obj, attr):
         try:
-            return getattr(obj, attr).__unicode__()
+            return getattr(obj, attr).__str__()
         except:
             value = getattr(obj, attr)
             if hasattr(value, 'all'):
-                return [v.__unicode__() for v in value.all()]
+                return [v.__str__() for v in value.all()]
             else:
                 return value
     else:
@@ -164,9 +164,7 @@ def dict_diff(old, new):
 
 
 def format_value(v):
-    if isinstance(v, basestring):
-        return u"'%s'" % v
-    return unicode(v)
+    return str(v)
 
 
 def save_audit(instance, operation, kwargs={}):
@@ -236,9 +234,9 @@ def save_audit(instance, operation, kwargs={}):
                         format_value(v[1]),
                     ) for k, v in changed_fields.items()])
         elif operation == Audit.DELETE:
-            description = _('Deleted %s') % unicode(instance)
+            description = _('Deleted %s') % str(instance)
         elif operation == Audit.ADD:
-            description = _('Added %s') % unicode(instance)
+            description = _('Added %s') % str(instance)
 
         LOG.debug("called audit with operation=%s instance=%s persist=%s" % (operation, instance, persist_audit))
         if persist_audit:
@@ -270,6 +268,6 @@ def save_audit(instance, operation, kwargs={}):
 
 
 def handle_unicode(s):
-    if isinstance(s, basestring):
+    if isinstance(s, str):
         return s.encode('utf-8')
     return s
