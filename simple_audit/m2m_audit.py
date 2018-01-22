@@ -89,18 +89,15 @@ def m2m_clean_unchanged_fields(dict_diff):
     returns a list of dicts with only the changes
     """
     dict_list = []
-    for key in dict_diff.keys():
+    for key in list(dict_diff.keys()):
         new_dict = {}
         dict_ = dict_diff.get(key)
 
-        for value in dict_.keys():
+        for value in list(dict_.keys()):
             compound_key = "%s.%s" % (key, value)
-            if dict_[value][0] == dict_[value][1]:
-                del dict_[value]
-            else:
+            if not dict_[value][0] == dict_[value][1]:
                 new_dict[compound_key] = dict_[value]
 
-        del dict_diff[key]
         if new_dict:
             dict_list.append(new_dict)
 

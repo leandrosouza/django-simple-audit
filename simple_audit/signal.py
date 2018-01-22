@@ -144,7 +144,7 @@ def to_dict(obj):
 
 def dict_diff(old, new):
 
-    keys = set(old.keys() + new.keys())
+    keys = set(list(old.keys()) + list(new.keys()))
     diff = {}
     for key in keys:
         old_value = old.get(key, None)
