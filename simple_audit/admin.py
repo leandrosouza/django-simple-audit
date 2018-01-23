@@ -78,7 +78,9 @@ class AuditAdmin(admin.ModelAdmin):
     audit_description.short_description = _("Description")
 
     def audit_content(self, audit):
-        obj_string = audit.obj_description or unicode(audit.content_object)
+        obj_string = audit.obj_description
+        if not obj_string and audit.content_type.model_class():
+            obj_string = unicode(audit.content_object)
 
         return "<a title='%(filter)s' href='%(base)s?content_type__id__exact=%(type_id)s&object_id__exact=%(id)s'>%(type)s: %(obj)s</a>" % {
             'filter': _("Click to filter"),

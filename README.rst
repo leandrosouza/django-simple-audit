@@ -130,6 +130,8 @@ CHANGELOG
 * 0.2
     * Update with compatibility for Django 1.9
     * Add Migrations
+* 0.1.22
+	* Fixing admin display Current Content when audited model was deleted ( thanks otherpirate )
 * 0.1.21
 	* Problems with upload to pypi ( the version was used ) - Sux 
 
