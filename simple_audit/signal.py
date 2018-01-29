@@ -166,9 +166,9 @@ def dict_diff(old, new):
 
 
 def format_value(v):
-    if isinstance(v, six.text_type):
+    if isinstance(v, six.string_types):
         return "'{}'".format(v)
-    return six.u(v)
+    return six.text_type(v)
 
 
 def save_audit(instance, operation, kwargs={}):
