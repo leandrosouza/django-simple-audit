@@ -6,6 +6,8 @@ import re
 import threading
 from pprint import pprint
 
+import six
+
 from . import m2m_audit
 from django import VERSION as DJANGO_VERSION
 from django.db import models
@@ -164,7 +166,9 @@ def dict_diff(old, new):
 
 
 def format_value(v):
-    return str(v)
+    if isinstance(v, six.text_type):
+        return "'{}'".format(v)
+    return six.u(v)
 
 
 def save_audit(instance, operation, kwargs={}):
