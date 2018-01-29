@@ -272,6 +272,6 @@ def save_audit(instance, operation, kwargs={}):
 
 
 def handle_unicode(s):
-    if isinstance(s, str):
+    if isinstance(s, six.string_types):
         return s.encode('utf-8')
     return s
