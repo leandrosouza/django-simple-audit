@@ -1,23 +1,30 @@
 # -*- coding:utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+
 import logging
 import re
 import threading
 from pprint import pprint
-from . import m2m_audit
-from django.db import models
-from .models import Audit, AuditChange
-from . import settings
-from django.utils.translation import ugettext_lazy as _
+
+import six
+
+from django import VERSION as DJANGO_VERSION
 from django.core.cache import cache
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
+from . import m2m_audit, settings
+from .models import Audit, AuditChange
+
 
 MODEL_LIST = set()
 LOG = logging.getLogger(__name__)
 DEFAULT_CACHE_TIMEOUT = 120
 
+
 def get_cache_key_for_instance(instance, cache_prefix="django_simple_audit"):
-    
     return "%s:%s:%s" % (cache_prefix, instance.__class__.__name__, instance.pk)
+
 
 def audit_m2m_change(sender, **kwargs):
     """
@@ -49,13 +56,13 @@ def audit_m2m_change(sender, **kwargs):
 
 
 def audit_post_save(sender, **kwargs):
-    if kwargs['created']:
+    if kwargs['created'] and not kwargs.get('raw', False):
         save_audit(kwargs['instance'], Audit.ADD)
 
 
 def audit_pre_save(sender, **kwargs):
     instance=kwargs.get('instance')
-    if instance.pk:
+    if instance.pk and not kwargs.get('raw', False):
         if settings.DJANGO_SIMPLE_AUDIT_M2M_FIELDS:
             if m2m_audit.get_m2m_fields_for(instance): #has m2m fields?
                 cache_key = get_cache_key_for_instance(instance)
@@ -84,7 +91,14 @@ def register(*my_models):
 
             # signals for m2m fields
             if settings.DJANGO_SIMPLE_AUDIT_M2M_FIELDS:
-                m2ms = model._meta.get_m2m_with_model()
+                # model._meta.get_m2m_with_model is removed in 1.9
+                # See https://docs.djangoproject.com/en/1.9/ref/models/meta/#migrating-from-the-old-api
+                # for where this migration code comes from
+                m2ms = [
+                    (f, f.model if f.model != model else None)
+                    for f in model._meta.get_fields()
+                    if f.many_to_many and not f.auto_created
+                ]
                 if m2ms:
                     for m2m in m2ms:
                         try:
@@ -92,7 +106,7 @@ def register(*my_models):
                             if sender_m2m.__name__ == "{}_{}".format(model.__name__, m2m[0].name):
                                 models.signals.m2m_changed.connect(audit_m2m_change, sender=sender_m2m)
                                 LOG.debug("Attached signal to: %s" % sender_m2m)
-                        except Exception, e:
+                        except Exception as e:
                             LOG.warning("could not create signal for m2m field: %s" % e)
 
 
@@ -105,11 +119,11 @@ def get_value(obj, attr):
     """
     if hasattr(obj, attr):
         try:
-            return getattr(obj, attr).__unicode__()
+            return six.text_type(getattr(obj, attr))
         except:
             value = getattr(obj, attr)
             if hasattr(value, 'all'):
-                return [v.__unicode__() for v in value.all()]
+                return [six.text_type(v) for v in value.all()]
             else:
                 return value
     else:
@@ -125,7 +139,9 @@ def to_dict(obj):
 
     state = {}
 
-    for key in obj._meta.get_all_field_names():
+    field_names = [f.name for f in obj._meta.get_fields()]
+
+    for key in field_names:
         state[key] = get_value(obj, key)
 
     return state
@@ -133,7 +149,7 @@ def to_dict(obj):
 
 def dict_diff(old, new):
 
-    keys = set(old.keys() + new.keys())
+    keys = set(list(old.keys()) + list(new.keys()))
     diff = {}
     for key in keys:
         old_value = old.get(key, None)
@@ -146,16 +162,16 @@ def dict_diff(old, new):
             except:
                 pass
             diff[key] = (old_value, new_value)
-    
+
     if diff:
         LOG.debug("dict_diff: %s" % diff)
     return diff
 
 
 def format_value(v):
-    if isinstance(v, basestring):
-        return u"'%s'" % v
-    return unicode(v)
+    if isinstance(v, six.string_types):
+        return "'{}'".format(v)
+    return six.text_type(v)
 
 
 def save_audit(instance, operation, kwargs={}):
@@ -189,7 +205,7 @@ def save_audit(instance, operation, kwargs={}):
                     old_state = kwargs.get("old_state", {})
         except:
             pass
-            
+
         if m2m_change:
             #m2m_change returns a list of changes
             changed_fields = m2m_audit.m2m_dict_diff(old_state, new_state)
@@ -200,7 +216,7 @@ def save_audit(instance, operation, kwargs={}):
             #is there any change?
             if not changed_fields:
                 persist_audit = False
-            
+
             if m2m_change:
                 descriptions = []
                 for changed_field in changed_fields:
@@ -225,9 +241,9 @@ def save_audit(instance, operation, kwargs={}):
                         format_value(v[1]),
                     ) for k, v in changed_fields.items()])
         elif operation == Audit.DELETE:
-            description = _('Deleted %s') % unicode(instance)
+            description = _('Deleted %s') % six.text_type(instance)
         elif operation == Audit.ADD:
-            description = _('Added %s') % unicode(instance)
+            description = _('Added %s') % six.text_type(instance)
 
         LOG.debug("called audit with operation=%s instance=%s persist=%s" % (operation, instance, persist_audit))
         if persist_audit:
@@ -235,7 +251,7 @@ def save_audit(instance, operation, kwargs={}):
                 for description in descriptions:
                     audit = Audit.register(instance, description, operation)
                     changed_field = changed_fields.pop(0)
-                    
+
                     for field, (old_value, new_value) in changed_field.items():
                         change = AuditChange()
                         change.audit = audit
@@ -259,6 +275,6 @@ def save_audit(instance, operation, kwargs={}):
 
 
 def handle_unicode(s):
-    if isinstance(s, basestring):
+    if isinstance(s, six.string_types):
         return s.encode('utf-8')
     return s

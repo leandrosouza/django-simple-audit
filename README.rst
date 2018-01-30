@@ -1,3 +1,5 @@
+.. image:: https://drone.io/github.com/stratasan/django-simple-audit/status.png
+
 ****************************************
 django simple audit
 ****************************************
@@ -73,7 +75,7 @@ to audit a model you need import `simple_audit` and then register the model to b
 	        return self.name
 
 
-	simple_audit.register(Message, Owner, VirtualMachine)
+	simple_audit.signal.register(Message, Owner, VirtualMachine)
 
 Advanced Usage (without httprequest or our middleware)
 --------------------------------------------------------
@@ -110,8 +112,9 @@ You need to have at least one cache backend set in your django settings, otherwi
 Dependencies
 ============
 
-* Django >= 1.4.x
+* Django >= 1.8.x
 * django.contrib.contenttypes installed in INSTALLED_APPS
+* Supports Python >= 2.7 and Python3 >= 3.6
 
 
 TODO
@@ -120,6 +123,13 @@ TODO
 
 CHANGELOG
 =========
+* 0.4
+    * Update with compatibility for Django 1.11 and Python 3
+* 0.3
+    * Update with compatibility for Django 1.10
+* 0.2
+    * Update with compatibility for Django 1.9
+    * Add Migrations
 * 0.1.22
 	* Fixing admin display Current Content when audited model was deleted ( thanks otherpirate )
 * 0.1.21

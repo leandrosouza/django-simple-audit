@@ -5,7 +5,7 @@ STATUS_PROD = 'Development Status :: 5 - Production/Stable'
 STATUS_BETA = 'Development Status :: 4 - Beta'
 STATUS_ALPHA = 'Development Status :: 3 - Alpha'
 
-version = '0.1.22'
+version = '0.2.1'
 README = os.path.join(os.path.dirname(__file__), 'README.rst')
 long_description = open(README).read()
 setup(
@@ -21,6 +21,8 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Utilities'],
     keywords='revisions versioning history audit',

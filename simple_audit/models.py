@@ -8,9 +8,9 @@ from django.conf import settings
 from django.db import models
 from .managers import AuditManager
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.utils.translation import ugettext_lazy as _
-
+from django.utils.encoding import python_2_unicode_compatible
 
 LOG = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ class CustomAppName(str):
     __deepcopy__ = lambda self, memodict: self
 
 
+@python_2_unicode_compatible
 class Audit(models.Model):
     ADD = 0
     CHANGE = 1
@@ -38,10 +39,10 @@ class Audit(models.Model):
         (DELETE, _('delete'))
     )
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("Date"))
-    operation = models.PositiveIntegerField(max_length=255, choices=OPERATION_CHOICES, verbose_name=_('Operation'))
+    operation = models.PositiveIntegerField(choices=OPERATION_CHOICES, verbose_name=_('Operation'))
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
     audit_request = models.ForeignKey("AuditRequest", null=True)
     description = models.TextField()
     obj_description = models.CharField(max_length=100, db_index=True, null=True, blank=True)
@@ -64,13 +65,13 @@ class Audit(models.Model):
         audit.operation = Audit.CHANGE if operation is None else operation
         audit.content_object = audit_obj
         audit.description = description
-        audit.obj_description = (audit_obj and unicode(audit_obj) and '')[:100]
+        audit.obj_description = (audit_obj and str(audit_obj) and '')[:100]
         audit.audit_request = AuditRequest.current_request(True)
         audit.save()
         return audit
 
-    def __unicode__(self):
-        return u"%s" % (self.operation)
+    def __str__(self):
+        return "%s" % (self.operation)
 
 
 class AuditChange(models.Model):
@@ -91,7 +92,7 @@ class AuditRequest(models.Model):
     THREAD_LOCAL = threading.local()
 
     request_id = models.CharField(max_length=255)
-    ip = models.IPAddressField()
+    ip = models.GenericIPAddressField()
     path = models.CharField(max_length=1024)
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("Date"))
     user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'))

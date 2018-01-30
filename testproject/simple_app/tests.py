@@ -25,6 +25,11 @@ class SimpleTest(TestCase):
         self.content_type_topping = ContentType.objects.get_for_model(Topping)
         self.content_type_pizza = ContentType.objects.get_for_model(Pizza)
 
+    @staticmethod
+    def sort_dict_collection(list_):
+        """ Takes a list of dictionaries and orders them by key """ 
+        return sorted(list_, key=lambda x: list(x.keys())[0])
+
     def test_add_topping_and_search_audit(self):
         """tests add a topping"""
         topping = Topping.objects.get_or_create(name="potato")[0]
@@ -110,7 +115,10 @@ class SimpleTest(TestCase):
         expected_response = [{u'toppings.10.id': [None, 10], u'toppings.10.name': [None, u'abacaxi']},
                     {u'toppings.11.id': [11, None], u'toppings.11.name': [u'abacate', None]}]
 
+        expected_response = self.sort_dict_collection(expected_response)
+
         diff = m2m_audit.m2m_dict_diff(old_state, new_state)
+        diff = self.sort_dict_collection(diff)
 
         self.assertEqual(diff, expected_response)
 
@@ -137,7 +145,10 @@ class SimpleTest(TestCase):
                     {u'toppings.8.id': [8, None], u'toppings.8.name': [u'codorna', None]},
                     {u'toppings.9.id': [9, None], u'toppings.9.name': [u'banana', None]}]
 
+        expected_response = self.sort_dict_collection(expected_response)
+
         diff = m2m_audit.m2m_dict_diff(old_state, new_state)
+        diff = self.sort_dict_collection(diff)
 
         self.assertEqual(diff, expected_response)
 
@@ -164,7 +175,10 @@ class SimpleTest(TestCase):
          {u'toppings.8.id': [None, 8], u'toppings.8.name': [None, u'codorna']},
          {u'toppings.9.id': [None, 9], u'toppings.9.name': [None, u'banana']}]
 
+        expected_response = self.sort_dict_collection(expected_response)
+
         diff = m2m_audit.m2m_dict_diff(old_state, new_state)
+        diff = self.sort_dict_collection(diff)
 
         self.assertEqual(diff, expected_response)
 
