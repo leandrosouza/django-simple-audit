@@ -80,7 +80,7 @@ class SimpleTest(TestCase):
 
         #m2m audit recorded?
         #u"field toppings.1.id: was changed from None to 1\nfield toppings.1.name: was changed from None to 'calabresa'"
-        desc = "field toppings.%s.id: was changed from None to %s\nfield toppings.%s.name: was changed from None to %s" % (self.topping_onion.id,
+        desc = "field toppings.%s.id: was changed from None to %s\nfield toppings.%s.name: was changed from None to '%s'" % (self.topping_onion.id,
          self.topping_onion.id,
          self.topping_onion.id,
          self.topping_onion.name)
@@ -176,7 +176,7 @@ class SimpleTest(TestCase):
          {u'toppings.9.id': [None, 9], u'toppings.9.name': [None, u'banana']}]
 
         expected_response = self.sort_dict_collection(expected_response)
-        
+
         diff = m2m_audit.m2m_dict_diff(old_state, new_state)
         diff = self.sort_dict_collection(diff)
 

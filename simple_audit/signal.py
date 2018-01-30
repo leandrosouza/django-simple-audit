@@ -6,20 +6,25 @@ import re
 import threading
 from pprint import pprint
 
-from . import m2m_audit
+import six
+
 from django import VERSION as DJANGO_VERSION
-from django.db import models
-from .models import Audit, AuditChange
-from . import settings
-from django.utils.translation import ugettext_lazy as _
 from django.core.cache import cache
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
+from . import m2m_audit, settings
+from .models import Audit, AuditChange
+
 
 MODEL_LIST = set()
 LOG = logging.getLogger(__name__)
 DEFAULT_CACHE_TIMEOUT = 120
 
+
 def get_cache_key_for_instance(instance, cache_prefix="django_simple_audit"):
     return "%s:%s:%s" % (cache_prefix, instance.__class__.__name__, instance.pk)
+
 
 def audit_m2m_change(sender, **kwargs):
     """
@@ -114,11 +119,11 @@ def get_value(obj, attr):
     """
     if hasattr(obj, attr):
         try:
-            return getattr(obj, attr).__str__()
+            return six.text_type(getattr(obj, attr))
         except:
             value = getattr(obj, attr)
             if hasattr(value, 'all'):
-                return [v.__str__() for v in value.all()]
+                return [six.text_type(v) for v in value.all()]
             else:
                 return value
     else:
@@ -164,7 +169,9 @@ def dict_diff(old, new):
 
 
 def format_value(v):
-    return str(v)
+    if isinstance(v, six.string_types):
+        return "'{}'".format(v)
+    return six.text_type(v)
 
 
 def save_audit(instance, operation, kwargs={}):
@@ -234,9 +241,9 @@ def save_audit(instance, operation, kwargs={}):
                         format_value(v[1]),
                     ) for k, v in changed_fields.items()])
         elif operation == Audit.DELETE:
-            description = _('Deleted %s') % str(instance)
+            description = _('Deleted %s') % six.text_type(instance)
         elif operation == Audit.ADD:
-            description = _('Added %s') % str(instance)
+            description = _('Added %s') % six.text_type(instance)
 
         LOG.debug("called audit with operation=%s instance=%s persist=%s" % (operation, instance, persist_audit))
         if persist_audit:
@@ -268,6 +275,6 @@ def save_audit(instance, operation, kwargs={}):
 
 
 def handle_unicode(s):
-    if isinstance(s, str):
+    if isinstance(s, six.string_types):
         return s.encode('utf-8')
     return s
